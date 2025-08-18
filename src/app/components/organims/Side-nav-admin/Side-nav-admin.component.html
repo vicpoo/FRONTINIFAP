@@ -1,0 +1,59 @@
+<!-- Drawer para móviles -->
+<div 
+  class="fixed top-0 left-0 w-[220px] h-screen bg-[#AB9CF2] z-50 transition-transform duration-300 sm:hidden"
+  [class.-translate-x-full]="!isDrawerOpen"
+  [class.translate-x-0]="isDrawerOpen"
+>
+  <!-- Botón cerrar -->
+  <div class="p-4 flex justify-end">
+    <button (click)="toggleDrawer()" class="text-white text-xl">✕</button>
+  </div>
+
+  <!-- Ítems del menú -->
+  <div class="flex flex-col">
+    <div 
+      *ngFor="let item of menuItems" 
+      class="flex items-center px-4 py-3 cursor-pointer hover:bg-[#2d5244] transition-colors"
+      (click)="handleItemClick(item); toggleDrawer()"
+    >
+      <img [src]="item.icon" class="w-[30px] h-[30px] mr-3" alt="icono" />
+      <span class="text-white text-sm">{{ item.label }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Menú lateral en pantallas grandes -->
+<div 
+  class="hidden sm:flex flex-col w-[90px] bg-[#AB9CF2] transition-all duration-300 h-screen overflow-hidden relative"
+  [class.expanded]="isExpanded"
+  [class.w-[220px]]="isExpanded"
+>
+  <!-- Botón hamburguesa -->
+  <div 
+    class="p-[15px] cursor-pointer flex items-center justify-center hover:bg-[#000000] transition-colors duration-300 border-b border-[#3a5747] rounded-md"
+    (click)="toggleNav()"
+  >
+    <img src="assets/hamburguesa.png" alt="Menú" class="w-[30px] h-[30px]" />
+    <span *ngIf="isExpanded" class="ml-[12px] font-bold text-white text-[16px]">Menú</span>
+  </div>
+
+  <!-- Ítems del menú -->
+  <div class="flex-1 flex flex-col justify-between">
+    <div 
+      *ngFor="let item of menuItems" 
+      class="flex items-center px-[15px] h-[60px] cursor-pointer hover:bg-[#000000] transition-colors duration-300"
+      (click)="handleItemClick(item)"
+    >
+      <img [src]="item.icon" class="w-[35px] h-[35px] mr-[10px]" alt="icono" />
+      <span *ngIf="isExpanded" class="text-white text-[15px]">{{ item.label }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Botón hamburguesa fijo en la parte inferior solo en móvil -->
+<button 
+  class="fixed bottom-4 left-4 z-50 bg-[#1c392c] text-white p-3 rounded-full shadow-lg sm:hidden"
+  (click)="toggleDrawer()"
+>
+  <img src="assets/hamburguesa.png" alt="Abrir menú" class="w-[25px] h-[25px]" />
+</button>
