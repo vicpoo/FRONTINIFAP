@@ -1,0 +1,604 @@
+/* home.component.css - CSS FINAL CORREGIDO */
+
+/* Variables CSS para consistencia y rendimiento */
+:root {
+  --primary-color: #009887;
+  --hover-color: #ebf8ff;
+  --border-color: #e2e8f0;
+  --text-dark: #1a202c;
+  --text-gray: #4a5568;
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 2px 6px rgba(0, 0, 0, 0.15);
+  --transition-fast: 0.15s ease;
+  --border-radius: 6px;
+}
+
+/* Reset y optimizaciones base */
+* {
+  box-sizing: border-box;
+}
+
+/* Optimización crítica - usar GPU para elementos principales */
+.map-container,
+.tooltip-mapa,
+.loading-overlay {
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+/* Mapa container - máxima optimización */
+.map-container {
+  height: 500px;
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  overflow: hidden;
+  position: relative;
+  background-color: #f8f9fa;
+  /* Optimizaciones críticas */
+  contain: layout style paint;
+  backface-visibility: hidden;
+}
+
+/* Loading overlay optimizado */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(248, 249, 250, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px); /* Reducido para mejor rendimiento */
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Spinner ultra optimizado */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+@keyframes spin {
+  0% { transform: translateZ(0) rotate(0deg); }
+  100% { transform: translateZ(0) rotate(360deg); }
+}
+
+/* Ocultamos todos los controles de OpenLayers para máximo rendimiento */
+::ng-deep .ol-zoom,
+::ng-deep .ol-attribution,
+::ng-deep .ol-rotate,
+::ng-deep .ol-control {
+  display: none !important;
+}
+
+/* Desactivar interacciones del mapa para que no se mueva */
+::ng-deep .ol-viewport {
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  transform: translateZ(0);
+  cursor: default !important;
+}
+
+::ng-deep .ol-layer {
+  will-change: transform;
+}
+
+/* Estilos para etiquetas de municipios */
+.municipio-label {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  pointer-events: none !important;
+  display: none !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+  z-index: 1000 !important;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  text-rendering: optimizeSpeed;
+  transform: translateZ(0);
+}
+
+/* Mejorar la visualización de texto en las etiquetas del mapa */
+::ng-deep .ol-text {
+  text-rendering: geometricPrecision;
+}
+
+/* Tabla optimizada para máximo rendimiento */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.875rem;
+  contain: layout style;
+  table-layout: fixed; /* Crítico para rendimiento */
+}
+
+th, td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  text-rendering: optimizeSpeed; /* Priorizar velocidad */
+}
+
+th {
+  background-color: #2d3748;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Optimización crítica de hover en tabla */
+tbody tr {
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+tbody tr:hover {
+  background-color: var(--hover-color);
+  will-change: background-color;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f7fafc;
+}
+
+tbody tr.bg-blue-100 {
+  background-color: #dbeafe !important;
+  border-left: 4px solid var(--primary-color);
+}
+
+tbody tr.selected {
+  background-color: #dbeafe;
+  border-left: 4px solid var(--primary-color);
+  font-weight: 600;
+}
+
+/* Tooltip ultra optimizado */
+.tooltip-mapa {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #ffffff;
+  border-radius: var(--border-radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #ffffff;
+  box-shadow: var(--shadow-medium);
+  pointer-events: none;
+  min-width: 160px;
+  z-index: 1000;
+  transform: translateZ(0) translateY(-10px);
+  animation: tooltipFadeIn 0.2s ease-out;
+  will-change: opacity, transform;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(0) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) translateY(-10px);
+  }
+}
+
+.tooltip-content {
+  text-align: left;
+  line-height: 1.4;
+}
+
+.tooltip-content strong {
+  color: #ffffff;
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid #ffffff;
+  padding-bottom: 3px;
+}
+
+.tooltip-detail {
+  color: #e0e0e0;
+  font-size: 12px;
+  display: block;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Información del municipio optimizada */
+.municipio-info {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: var(--shadow-light);
+  contain: layout style;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateZ(0) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateZ(0) translateY(0);
+  }
+}
+
+.municipio-info h3 {
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  text-align: center;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.info-item {
+  background-color: white;
+  padding: 10px 14px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  border-left: 3px solid var(--primary-color);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  contain: layout style;
+}
+
+.info-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-medium);
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--text-gray);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 3px;
+}
+
+.info-value {
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Header de tabla optimizado */
+.table-header {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  color: white;
+  padding: 12px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  box-shadow: var(--shadow-light);
+}
+
+.table-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Input de búsqueda optimizado */
+.search-input {
+  width: 100%;
+  max-width: 180px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: white;
+  color: #2d3748;
+  font-size: 0.8rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 152, 135, 0.1);
+}
+
+/* Container de tabla optimizado */
+.table-container {
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  contain: layout style paint;
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Botones optimizados */
+.action-button {
+  background: linear-gradient(135deg, var(--primary-color), #00b894);
+  border: none;
+  border-radius: var(--border-radius);
+  color: white;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 152, 135, 0.2);
+  transform: translateZ(0);
+}
+
+.action-button:hover {
+  background: linear-gradient(135deg, #00b894, var(--primary-color));
+  transform: translateZ(0) translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 152, 135, 0.3);
+}
+
+.action-button:active {
+  transform: translateZ(0) translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 152, 135, 0.2);
+}
+
+/* Color legend simplificado */
+.color-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 15px;
+}
+
+.color-box {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  box-shadow: var(--shadow-light);
+  transition: transform var(--transition-fast);
+  transform: translateZ(0);
+}
+
+.color-box:hover {
+  transform: translateZ(0) scale(1.1);
+}
+
+.legend-label {
+  font-size: 11px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: color var(--transition-fast);
+}
+
+/* Optimizaciones para dispositivos móviles */
+@media (max-width: 1024px) {
+  .flex-row {
+    flex-direction: column;
+  }
+  
+  .w-1\/3, .w-2\/3 {
+    width: 100%;
+  }
+  
+  .map-container {
+    height: 450px;
+  }
+  
+  .tooltip-mapa {
+    min-width: 140px;
+    padding: 10px 14px;
+  }
+  
+  .municipio-label {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .map-container {
+    height: 400px;
+  }
+  
+  .tooltip-mapa {
+    font-size: 12px;
+    padding: 8px 12px;
+    min-width: 120px;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .municipio-info {
+    padding: 12px;
+  }
+  
+  .search-input {
+    max-width: 140px;
+    font-size: 0.75rem;
+  }
+  
+  .municipio-label {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-container {
+    height: 350px;
+  }
+  
+  .tooltip-mapa {
+    min-width: 100px;
+    padding: 6px 10px;
+  }
+  
+  .color-legend {
+    gap: 8px;
+  }
+  
+  .color-box {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .municipio-label {
+    font-size: 9px !important;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Optimizaciones de rendimiento críticas */
+
+/* Reducir reflow/repaint durante interacciones */
+tbody tr:hover {
+  will-change: background-color;
+}
+
+tbody tr:not(:hover) {
+  will-change: auto;
+}
+
+/* Optimizar composite layers solo cuando sea necesario */
+@media (hover: hover) {
+  tbody tr:hover {
+    background-color: var(--hover-color);
+  }
+  
+  .color-box:hover {
+    transform: translateZ(0) scale(1.1);
+  }
+}
+
+/* Fallback para dispositivos sin hover */
+@media (hover: none) {
+  tbody tr:active {
+    background-color: var(--hover-color);
+  }
+}
+
+/* Contenedores de carga optimizados */
+.loading-overlay {
+  contain: strict;
+}
+
+/* Prevenir layout shifts */
+.municipio-info {
+  min-height: 150px;
+}
+
+/* Estados específicos para mejor UX */
+.municipio-info-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-gray);
+  font-style: italic;
+}
+
+/* Optimización de fuentes */
+body {
+  font-display: swap;
+}
+
+/* Asegurar que elementos críticos tengan contenido inmediato */
+.map-container::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  position: absolute;
+  z-index: -1;
+}
+
+/* Micro-optimizaciones para mejor rendimiento */
+.table-container {
+  scroll-behavior: auto; /* Evitar smooth scroll costoso */
+}
+
+/* Reducir el número de elementos que pueden causar reflow */
+.info-grid {
+  contain: layout;
+}
+
+.tooltip-mapa {
+  contain: layout style;
+}
+
+/* Optimización final para máxima velocidad */
+* {
+  font-feature-settings: normal;
+  font-variant-ligatures: none;
+}
+
+/* Estilos específicos para mejorar la visualización de etiquetas en el mapa */
+::ng-deep .ol-layer canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Mejorar la legibilidad de las etiquetas de municipios */
+.municipio-label {
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8), 
+               -1px -1px 2px rgba(255, 255, 255, 0.8),
+               1px -1px 2px rgba(255, 255, 255, 0.8),
+               -1px 1px 2px rgba(255, 255, 255, 0.8) !important;
+  font-family: Arial, sans-serif !important;
+}
