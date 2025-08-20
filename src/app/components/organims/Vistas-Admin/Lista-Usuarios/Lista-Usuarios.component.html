@@ -1,0 +1,150 @@
+<div class="flex min-h-screen">
+  <!-- Contenido principal -->
+  <div class="flex-1 p-6">
+    <!-- Encabezado con título y botón -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold bg-green-200 px-4 py-2 inline-block">
+        LISTA DE USUARIOS
+      </h1>
+      <button
+        (click)="abrirAgregar()"
+        class="px-6 py-2 bg-green-700 text-white rounded shadow hover:bg-green-800"
+      >
+        AGREGAR NUEVO EMPLEADO
+      </button>
+    </div>
+
+    <!-- Tabla estilo tarjeta -->
+    <div class="w-full">
+      <!-- Encabezado -->
+      <div class="grid grid-cols-5 bg-green-600 text-black font-semibold text-center rounded-t-lg py-3">
+        <div>NOMBRE</div>
+        <div>APELLIDO</div>
+        <div>CORREO</div>
+        <div>TELÉFONO</div>
+        <div>OPCIONES</div>
+      </div>
+
+      <!-- Filas -->
+      <div
+        *ngFor="let u of usuarios"
+        class="grid grid-cols-5 items-center bg-green-200 rounded-lg mt-2 px-4 py-3"
+      >
+        <!-- Nombre -->
+        <div class="flex items-center gap-3">
+          <img src="assets/usuarios.png" alt="icono usuario" class="w-8 h-8" />
+          <span class="font-medium">{{ u.nombre }}</span>
+        </div>
+
+        <!-- Apellido -->
+        <div class="text-center">{{ u.apellido }}</div>
+
+        <!-- Correo -->
+        <div class="text-center">{{ u.correo }}</div>
+
+        <!-- Teléfono -->
+        <div class="text-center">{{ u.numero_telefonico }}</div>
+
+        <!-- Opciones -->
+        <div class="flex justify-center gap-4">
+          <img
+            src="assets/editar.png"
+            alt="Editar"
+            class="w-7 h-7 cursor-pointer hover:scale-110 transition-transform"
+            (click)="abrirEditar(u)"
+          />
+          <img
+            src="assets/borrar.png"
+            alt="Eliminar"
+            class="w-7 h-7 cursor-pointer hover:scale-110 transition-transform"
+            (click)="eliminarUsuario(u)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🌟 Modal -->
+<div
+  *ngIf="modalAbierto"
+  class="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/50"
+>
+  <div class="bg-white p-8 rounded-lg w-full max-w-md shadow-lg text-center">
+    <!-- Título -->
+    <h2 class="text-lg font-bold mb-6">
+      {{ esNuevoUsuario ? 'AGREGAR NUEVO EMPLEADO' : 'EDITAR EMPLEADO' }}
+    </h2>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="guardarCambios()" class="space-y-4">
+      <input
+        type="text"
+        [(ngModel)]="usuarioSeleccionado.nombre"
+        name="nombre"
+        placeholder="Nombre"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      />
+      <input
+        type="text"
+        [(ngModel)]="usuarioSeleccionado.apellido"
+        name="apellido"
+        placeholder="Apellido"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      />
+      <input
+        type="email"
+        [(ngModel)]="usuarioSeleccionado.correo"
+        name="correo"
+        placeholder="Correo"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      />
+      <input
+        type="text"
+        [(ngModel)]="usuarioSeleccionado.numero_telefonico"
+        name="telefono"
+        placeholder="Teléfono"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      />
+      <input
+        *ngIf="esNuevoUsuario"
+        type="password"
+        [(ngModel)]="usuarioSeleccionado.password"
+        name="password"
+        placeholder="Contraseña"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      />
+      <select
+        [(ngModel)]="usuarioSeleccionado.rol_id_FK"
+        name="rol"
+        class="w-full px-3 py-2 bg-green-200 rounded focus:outline-none"
+        required
+      >
+        <option [ngValue]="1">Administrador</option>
+        <option [ngValue]="2">Empleado</option>
+      </select>
+
+      <!-- Botones -->
+      <div class="mt-6 space-y-3">
+        <button
+          type="submit"
+          class="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700"
+        >
+          ACEPTAR
+        </button>
+        <button
+          type="button"
+          (click)="cerrarModal()"
+          class="w-full py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          CANCELAR
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
