@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UsuariosService, Usuario } from '../../../../Service/Usuarios.service';
+import { UsuariosService } from '../../../../Service/Usuarios.service';
+import { Usuario } from '../../../../Interface/Usuario.model';
 
 @Component({
   selector: 'app-usuarios',
@@ -14,7 +15,6 @@ export class ListaUsuariosComponent implements OnInit {
   modalAbierto = false;
   esNuevoUsuario = true;
 
-  // usuario con todos los campos que espera la API
   usuarioSeleccionado: Usuario = {
     nombre: '',
     apellido: '',
@@ -24,7 +24,10 @@ export class ListaUsuariosComponent implements OnInit {
     rol_id_FK: 1
   };
 
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private cdRef: ChangeDetectorRef   // 👈 inyectamos ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     this.cargarUsuarios();
@@ -32,7 +35,10 @@ export class ListaUsuariosComponent implements OnInit {
 
   cargarUsuarios() {
     this.usuariosService.getUsuarios().subscribe({
-      next: (data) => this.usuarios = data,
+      next: (data) => {
+        this.usuarios = data;
+        this.cdRef.detectChanges(); // 👈 fuerza refresco de la vista
+      },
       error: (err) => console.error('❌ Error cargando usuarios:', err)
     });
   }
@@ -48,37 +54,47 @@ export class ListaUsuariosComponent implements OnInit {
       rol_id_FK: 1
     };
     this.modalAbierto = true;
+    this.cdRef.detectChanges(); // 👈 asegura refresco al abrir modal
   }
 
   abrirEditar(usuario: Usuario) {
     this.esNuevoUsuario = false;
     this.usuarioSeleccionado = { ...usuario };
     this.modalAbierto = true;
+    this.cdRef.detectChanges();
   }
 
   cerrarModal() {
     this.modalAbierto = false;
+    this.cdRef.detectChanges();
   }
 
   guardarCambios() {
     if (this.esNuevoUsuario) {
       this.usuariosService.addUsuario(this.usuarioSeleccionado).subscribe({
-        next: () => this.cargarUsuarios(),
+        next: () => {
+          this.cargarUsuarios();
+          this.cerrarModal();
+        },
         error: (err) => console.error('❌ Error agregando usuario:', err)
       });
     } else {
       this.usuariosService.updateUsuario(this.usuarioSeleccionado).subscribe({
-        next: () => this.cargarUsuarios(),
+        next: () => {
+          this.cargarUsuarios();
+          this.cerrarModal();
+        },
         error: (err) => console.error('❌ Error editando usuario:', err)
       });
     }
-    this.cerrarModal();
   }
 
   eliminarUsuario(usuario: Usuario) {
     if (usuario.id_user) {
       this.usuariosService.deleteUsuario(usuario.id_user).subscribe({
-        next: () => this.cargarUsuarios(),
+        next: () => {
+          this.cargarUsuarios();
+        },
         error: (err) => console.error('❌ Error eliminando usuario:', err)
       });
     }

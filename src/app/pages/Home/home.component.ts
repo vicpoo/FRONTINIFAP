@@ -650,7 +650,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   irALogin(): void {
-    this.router.navigate(['/login']);
+    this.router.navigate(['/Login']);
   }
 
   // MÉTODOS AUXILIARES

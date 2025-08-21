@@ -1,0 +1,89 @@
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-72 bg-gradient-to-b from-green-800 to-green-600 text-white flex flex-col">
+    <div class="p-6 flex items-center justify-center border-b border-green-500">
+      <!-- LOGO de la empresa -->
+      <img src="assets/inifap.png" alt="Logo INIFAP" class="h-16 object-contain">
+    </div>
+    <nav class="flex-1">
+      <ul class="space-y-3 mt-6">
+        <li>
+          <button (click)="setFiltro('pendiente')" 
+                  class="flex items-center w-full px-5 py-3 text-xl font-semibold hover:bg-green-700 rounded-lg transition"
+                  [ngClass]="{'bg-green-900': filtro==='pendiente'}">
+            <img src="assets/Pendientes.png" alt="Pendientes" class="h-8 w-8 mr-3">
+            Archivos Pendientes
+          </button>
+        </li>
+        <li>
+          <button (click)="setFiltro('validado')" 
+                  class="flex items-center w-full px-5 py-3 text-xl font-semibold hover:bg-green-700 rounded-lg transition"
+                  [ngClass]="{'bg-green-900': filtro==='validado'}">
+            <img src="assets/Aprovados.png" alt="Validados" class="h-8 w-8 mr-3">
+            Archivos Validados
+          </button>
+        </li>
+        <li>
+          <button (click)="setFiltro('rechazado')" 
+                  class="flex items-center w-full px-5 py-3 text-xl font-semibold hover:bg-green-700 rounded-lg transition"
+                  [ngClass]="{'bg-green-900': filtro==='rechazado'}">
+            <img src="assets/Rechazados.png" alt="Rechazados" class="h-8 w-8 mr-3">
+            Archivos Rechazados
+          </button>
+        </li>
+      </ul>
+    </nav>
+    <div class="p-6 border-t border-green-500">
+      <button class="flex items-center justify-center w-full px-5 py-3 text-xl font-bold bg-gray-600 hover:bg-red-700 rounded-lg transition">
+        <img src="assets/salir.png" alt="Regresar" class="h-8 w-8 mr-3">
+        Regresar
+      </button> 
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 flex flex-col bg-gray-50">
+    <!-- Header con logo y usuario -->
+    <header class="flex justify-between items-center p-6 border-b bg-white shadow">
+      <div></div> <!-- espacio a la izquierda -->
+      <div class="text-xl font-semibold">Bienvenido</div>
+      <div class="text-xl font-bold uppercase">NOMBRE DE USUARIO</div>
+    </header>
+
+    <!-- Contenido -->
+    <div class="p-8 flex-1 overflow-auto">
+      <!-- Sección de carga de archivos -->
+      <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-lg p-10 bg-white mb-8">
+        <img src="https://img.icons8.com/?size=100&id=42373&format=png&color=000000" alt="Upload" class="h-20 mb-4 opacity-70">
+        <p class="text-gray-700 text-lg font-medium">Click para subir archivo</p>
+        <div class="mt-6 space-x-4">
+          <button class="px-6 py-3 text-lg bg-red-500 text-white rounded-lg hover:bg-red-600">Cancelar</button>
+          <button class="px-6 py-3 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700">Subir</button>
+        </div>
+      </div>
+
+      <!-- Tabla de archivos -->
+      <div class="overflow-x-auto">
+        <table class="w-full border-collapse bg-white rounded-lg shadow text-lg">
+          <thead>
+            <tr class="bg-green-700 text-white">
+              <th class="px-5 py-3 text-left">Nombre</th>
+              <th class="px-5 py-3 text-left">Tipo</th>
+              <th class="px-5 py-3 text-left">Fecha Subido</th>
+              <th class="px-5 py-3 text-left">Estatus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let archivo of archivosFiltrados" 
+                class="odd:bg-green-50 even:bg-green-100 border-b">
+              <td class="px-5 py-3">{{ archivo.nombre }}</td>
+              <td class="px-5 py-3">{{ archivo.tipo }}</td>
+              <td class="px-5 py-3">{{ archivo.fecha }}</td>
+              <td class="px-5 py-3 capitalize">{{ archivo.estatus }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

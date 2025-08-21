@@ -1,0 +1,110 @@
+<div class="p-6 space-y-6">
+
+  <!-- Botón agregar -->
+   <h1 class="text-3xl font-bold  px-4 py-2 inline-block">
+        RECOMENDACIONES
+      </h1>
+  <div class="flex justify-start">
+    <button 
+      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      (click)="abrirModal()">
+      AGREGAR NUEVA RECOMENDACIÓN
+    </button>
+  </div>
+
+  <!-- Encabezado -->
+  <h2 class="text-2xl font-bold">RECOMENDACIONES CREADAS</h2>
+
+  <!-- Controles de orden y búsqueda -->
+  <div class="flex gap-4 items-center">
+    <select [(ngModel)]="orden" (change)="aplicarFiltro()"
+      class="border px-3 py-2 rounded bg-white">
+      <option value="recientes">ORDEN: MÁS RECIENTES</option>
+      <option value="antiguos">ORDEN: MÁS ANTIGUOS</option>
+    </select>
+
+    <input [(ngModel)]="filtroMunicipio" (input)="aplicarFiltro()"
+      type="text" placeholder="BUSCAR POR MUNICIPIO"
+      class="flex-1 border px-3 py-2 rounded"/>
+  </div>
+
+  <!-- Cards -->
+  <div class="space-y-6">
+    <div *ngFor="let rec of recomendacionesFiltradas"
+         class="border rounded-xl shadow bg-white overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between bg-[#6A0F36] text-white px-4 py-2">
+        <img src="assets/inifap.png" alt="logo" class="h-8 w-auto"/>
+        <h3 class="font-bold text-lg text-center flex-1">
+          Municipio: {{ rec.municipio }}
+        </h3>
+        <div class="flex gap-3">
+          <img src="assets/editar.png" alt="editar"
+               class="h-6 w-6 cursor-pointer hover:scale-110 transition"
+               (click)="abrirModal(rec)" />
+          <img src="assets/borrar.png" alt="borrar"
+               class="h-6 w-6 cursor-pointer hover:scale-110 transition"
+               (click)="eliminar(rec)" />
+        </div>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="p-4 text-gray-700">
+        {{ rec.descripcion }}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div *ngIf="modalAbierto"
+     class="fixed inset-0 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+  
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6">
+    
+    <h2 class="text-xl font-bold mb-4 text-center">
+      {{ esNuevo ? 'Agregar Recomendación' : 'Editar Recomendación' }}
+    </h2>
+
+    <!-- Formulario -->
+    <form class="space-y-4">
+      
+      <!-- Selección municipio -->
+      <div>
+        <label class="block font-semibold mb-1">Municipio</label>
+        <select [(ngModel)]="formRecomendacion.municipio" name="municipio"
+          class="w-full border rounded px-3 py-2">
+          <option value="">Seleccione un municipio</option>
+          <option *ngFor="let m of municipios" [value]="m">{{ m }}</option>
+        </select>
+      </div>
+
+      <!-- Subir imagen -->
+      <div>
+        <label class="block font-semibold mb-1">Imagen (opcional)</label>
+        <input type="file" class="w-full border rounded px-3 py-2"/>
+      </div>
+
+      <!-- Texto recomendación -->
+      <div>
+        <label class="block font-semibold mb-1">Descripción</label>
+        <textarea [(ngModel)]="formRecomendacion.descripcion" name="descripcion"
+          rows="4" class="w-full border rounded px-3 py-2"></textarea>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-4 pt-4">
+        <button type="button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+          (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button type="button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          Aceptar
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
