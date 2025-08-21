@@ -12,7 +12,7 @@ export class SideNavAdminComponent {
   menuItems = [
     { icon: 'assets/subirArchivo.png', label: 'GESTION DE ARCHIVOS' },
     { icon: 'assets/usuarios.png', label: 'LISTA DE USUARIOS' },
-    { icon: 'assets/Recomendaciones.png', label: 'RECOMENDACIONES NUTRICIONALES' },
+    { icon: 'assets/recomendaciones.png', label: 'RECOMENDACIONES NUTRICIONALES' },
     { icon: 'assets/salir.png', label: 'REGRESAR' }
   ];
 

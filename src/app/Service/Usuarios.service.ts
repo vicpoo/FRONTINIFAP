@@ -1,7 +1,24 @@
+//Usuarios.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Usuario } from '../Interface/Usuario.model'; 
+
+// Interface para la respuesta del login
+export interface LoginRequest {
+  correo: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  apellido: string;
+  correo: string;
+  id_user: number;
+  nombre: string;
+  numero_telefonico: string;
+  rol_id_FK: number;
+  token: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +33,7 @@ export class UsuariosService {
   }
 
   getUsuario(id: number): Observable<Usuario> {
-    return this.http.get<Usuario>(`${this.apiUrl}/${id}`);
+    return this.http.get<Usuario>(`${this.apiUrl}${id}`);
   }
 
   addUsuario(usuario: Usuario): Observable<Usuario> {
@@ -29,5 +46,10 @@ export class UsuariosService {
 
   deleteUsuario(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}${id}`);
+  }
+
+  // Método de login
+  login(loginData: LoginRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}login`, loginData);
   }
 }
