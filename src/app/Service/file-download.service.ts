@@ -12,9 +12,9 @@ export class FileDownloadService {
 
   constructor(private http: HttpClient) {}
 
-  // Método para descargar un PDF
-  downloadPdf(nombrePdf: string, nombreArchivo: string = 'recomendacion.pdf'): void {
-    this.http.get(`${this.apiUrl}download/${nombrePdf}`, {
+  // Método genérico para descargar archivos
+  downloadFile(url: string, nombreArchivo: string): void {
+    this.http.get(url, {
       responseType: 'blob'
     }).subscribe(
       (blob: Blob) => {
@@ -33,5 +33,15 @@ export class FileDownloadService {
         alert('Error al descargar el archivo');
       }
     );
+  }
+
+  // Método para descargar un PDF por ID
+  downloadPdfById(id: number, nombreArchivo: string = 'recomendacion.pdf'): void {
+    this.downloadFile(`${this.apiUrl}${id}/download`, nombreArchivo);
+  }
+
+  // Método para descargar un ZIP por municipio
+  downloadZipByMunicipio(municipioId: number, nombreArchivo: string = 'recomendaciones.zip'): void {
+    this.downloadFile(`${this.apiUrl}municipio/${municipioId}/download-zip`, nombreArchivo);
   }
 }

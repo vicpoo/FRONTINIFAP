@@ -197,7 +197,7 @@ export class RecomendacionesComponent implements OnInit {
     }
   }
 
-  descargarPdf(nombrePdf: string) {
-    this.fileDownloadService.downloadPdf(nombrePdf, nombrePdf);
-  }
+ descargarPdf(id: number, nombrePdf: string) {
+  this.fileDownloadService.downloadPdfById(id, nombrePdf);
+}
 }

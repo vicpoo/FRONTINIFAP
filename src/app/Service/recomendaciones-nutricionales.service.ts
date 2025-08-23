@@ -79,9 +79,21 @@ export class RecomendacionesNutricionalesService {
     return this.http.delete<any>(`${this.apiUrl}${id}`);
   }
 
-  // Descargar el archivo PDF
-  downloadPdf(nombrePdf: string): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}download/${nombrePdf}`, {
+  // Obtener recomendaciones por municipio
+  getRecomendacionesByMunicipio(municipioId: number): Observable<RecomendacionNutricional[]> {
+    return this.http.get<RecomendacionNutricional[]>(`${this.apiUrl}municipio/${municipioId}`);
+  }
+
+  // Descargar un PDF por ID de recomendación
+  downloadPdfById(id: number, nombreArchivo: string = 'recomendacion.pdf'): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}${id}/download`, {
+      responseType: 'blob'
+    });
+  }
+
+  // Descargar todos los PDFs de un municipio como archivo ZIP
+  downloadZipByMunicipio(municipioId: number, nombreArchivo: string = 'recomendaciones.zip'): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}municipio/${municipioId}/download-zip`, {
       responseType: 'blob'
     });
   }
