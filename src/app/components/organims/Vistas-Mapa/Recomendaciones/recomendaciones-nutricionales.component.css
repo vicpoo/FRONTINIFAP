@@ -1,0 +1,116 @@
+/* recomendaciones.component.css */
+
+/* Animaciones personalizadas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+/* Contenedor principal */
+.container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Efectos hover para las tarjetas de recomendaciones */
+.bg-gradient-to-r:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+/* Estilo para el botón de descarga con efecto hover */
+button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Animación del spinner de carga */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Efectos para iconos SVG */
+svg {
+  transition: all 0.2s ease;
+}
+
+svg:hover {
+  transform: scale(1.1);
+}
+
+/* Estilos responsivos adicionales */
+@media (max-width: 768px) {
+  .text-5xl {
+    font-size: 2.5rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Estilo para el estado de hover en las tarjetas */
+.border-gray-200:hover {
+  border-color: #3B82F6;
+  transition: border-color 0.3s ease;
+}
+
+/* Animación suave para el contenido que aparece */
+.space-y-6 > * {
+  animation: fadeInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.space-y-6 > *:nth-child(1) { animation-delay: 0.1s; }
+.space-y-6 > *:nth-child(2) { animation-delay: 0.2s; }
+.space-y-6 > *:nth-child(3) { animation-delay: 0.3s; }
+.space-y-6 > *:nth-child(4) { animation-delay: 0.4s; }
+.space-y-6 > *:nth-child(5) { animation-delay: 0.5s; }
+
+/* Efecto de pulso para el botón de descarga */
+.bg-gradient-to-r.from-blue-600 {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Mejoras de accesibilidad */
+button:focus {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+/* Estilo para el texto de información */
+.text-blue-700 {
+  line-height: 1.5;
+}
+
+/* Efectos de transición suaves */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}

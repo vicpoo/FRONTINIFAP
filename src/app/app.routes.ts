@@ -7,12 +7,13 @@ import { GestionArchivosComponent } from './components/organims/Vistas-Admin/Ges
 import { RecomendacionesComponent } from './components/organims/Vistas-Admin/Recomendaciones/Recomendaciones.component';
 import { UsuarioComponent } from './pages/Usuario/Usuario.component';
 import { LoginComponent } from './pages/Login/Login.component';
+import { RecomendacionesNutricionalesComponent } from './components/organims/Vistas-Mapa/Recomendaciones/recomendaciones-nutricionales.component';
 
 export const routes: Routes = [
   { path: 'login', component:LoginComponent},
   { path: '', component: HomeComponent},
   { path: 'Usuario', component: UsuarioComponent},
-  { path: 'recomendaciones/:id', component: RecomendacionesComponent},
+  { path: 'nutricionales/:id', component: RecomendacionesNutricionalesComponent},
   {
     path: 'admin',
     component: AdminComponent, 

@@ -1,3 +1,4 @@
+// Side-nav-admin.component.ts
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';

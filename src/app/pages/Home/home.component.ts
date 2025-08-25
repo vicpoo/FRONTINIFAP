@@ -1,6 +1,6 @@
-// home.component.ts - VERSIÓN FINAL CON API
+// home.component.ts - VERSIÓN FINAL CON API Y NAVEGACIÓN A RECOMENDACIONES
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
@@ -75,6 +75,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private router: Router, 
+    private route: ActivatedRoute,
     private http: HttpClient, 
     private cdr: ChangeDetectorRef,
     private municipiosService: MunicipiosService
@@ -581,8 +582,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tooltipOverlay.setPosition(undefined);
   }
 
-  // SELECCIONAR MUNICIPIO (SIN MOSTRAR INFORMACIÓN ADICIONAL)
+  // SELECCIONAR MUNICIPIO (NAVEGACIÓN A RECOMENDACIONES)
   public selectMunicipality(municipio: string, feature?: Feature<Geometry>): void {
+    // Buscar el municipio en los datos de la API
+    const municipioData = this.findMunicipioFlexible(municipio);
+    
+    if (municipioData) {
+      // Guardar el nombre en sessionStorage para usarlo en la vista de recomendaciones
+      sessionStorage.setItem('municipioNombre', municipioData.nombre);
+      
+      // Navegar a la vista de recomendaciones con el ID del municipio
+      this.router.navigate(['/nutricionales', municipioData.id_municipio]);
+      return;
+    }
+    
+    // Si no se encuentra en la API, mantener el comportamiento actual
     this.municipioSeleccionado = municipio;
     this.municipioBuscado = '';
     this.municipiosFiltrados = [...this.municipios];
