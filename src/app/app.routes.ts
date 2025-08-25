@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: 'login', component:LoginComponent},
   { path: '', component: HomeComponent},
   { path: 'Usuario', component: UsuarioComponent},
+  { path: 'recomendaciones/:id', component: RecomendacionesComponent},
   {
     path: 'admin',
     component: AdminComponent, 

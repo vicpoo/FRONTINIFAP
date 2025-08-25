@@ -1,9 +1,10 @@
-// home.component.ts - VERSIÓN FINAL (SOLO NOMBRES AL HOVER)
+// home.component.ts - VERSIÓN FINAL CON API
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { MunicipiosService, Municipio } from '../../Service/municipios.service';
 
 // Importaciones de OpenLayers
 import OLMap from 'ol/Map';
@@ -24,21 +25,13 @@ import type { StyleFunction } from 'ol/style/Style';
 import { defaults as defaultControls } from 'ol/control';
 import { defaults as defaultInteractions } from 'ol/interaction';
 
-interface DatosMunicipio {
-  poblacion: number;
-  superficie: number;
-  altitud: number;
-  clima: string;
-  cabecera: string;
-  region: string;
-}
-
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.css'],
+  providers: [MunicipiosService]
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef;
@@ -46,19 +39,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   
   municipioBuscado: string = '';
   municipioSeleccionado: string = '';
-  municipiosFiltrados: string[] = [];
+  municipiosFiltrados: Municipio[] = [];
+  municipios: Municipio[] = [];
   mapaInicializado: boolean = false;
   porcentajeCarga: number = 0;
   mensajeCarga: string = 'Inicializando...';
-  
-  datosMunicipio: DatosMunicipio = {
-    poblacion: 0,
-    superficie: 0,
-    altitud: 0,
-    clima: '',
-    cabecera: '',
-    region: ''
-  };
   
   private map!: OLMap;
   private vectorLayer!: VectorLayer<VectorSource>;
@@ -74,7 +59,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly featureNameCache = new Map<Feature<Geometry>, string>();
   private readonly municipioColorMap = new Map<string, string>();
   
-  // Colores predefinidos para todos los municipios - MÁS COLORES VIVOS
+  // Colores predefinidos para todos los municipios
   private readonly COLORS = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F',
     '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA', '#F1948A', '#AED6F1', '#A9DFBF', '#F9E79F',
@@ -87,81 +72,103 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     '#FF9999', '#99FF99', '#9999FF', '#FFFF99', '#FF99FF', '#99FFFF', '#FFCC99', '#CCFF99',
     '#99CCFF', '#FF99CC', '#CC99FF', '#99FFCC', '#FFCC66', '#CCFF66', '#66CCFF', '#FF66CC'
   ];
-  
-  readonly todosMunicipios: string[] = [
-    'Acacoyagua', 'Acala', 'Acapetahua', 'Aldama', 'Altamirano', 'Amatán', 
-    'Amatenango de la Frontera', 'Amatenango del Valle', 'Angel Albino Corzo', 
-    'Arriaga', 'Bejucal de Ocampo', 'Bella Vista', 'Benemérito de las Américas', 
-    'Berriozábal', 'Bochil', 'El Bosque', 'Cacahoatán', 'Catazajá', 
-    'Chalchihuitán', 'Chamula', 'Chanal', 'Chapultenango', 'Chenalhó', 
-    'Chiapa de Corzo', 'Chiapilla', 'Chicoasén', 'Chicomuselo', 'Chilón', 
-    'Cintalapa', 'Coapilla', 'Comitán de Domínguez', 'La Concordia', 'Copainalá', 
-    'El Porvenir', 'Escuintla', 'Francisco León', 'Frontera Comalapa', 
-    'Frontera Hidalgo', 'La Grandeza', 'Huehuetán', 'Huitiupán', 'Huixtán', 
-    'Huixtla', 'Ixhuatán', 'Ixtacomitán', 'Ixtapa', 'Ixtapangajoya', 
-    'Jiquipilas', 'Jitotol', 'Juárez', 'Larráinzar', 'La Libertad', 
-    'Mapastepec', 'Las Margaritas', 'Mazapa de Madero', 'Mazatán', 'Metapa', 
-    'Mitontic', 'Montecristo de Guerrero', 'Motozintla', 'Nicolás Ruíz', 
-    'Ocosingo', 'Ocotepec', 'Ocozocoautla de Espinosa', 'Ostuacán', 
-    'Osumacinta', 'Oxchuc', 'Palenque', 'Pantelhó', 'Pantepec', 'Pichucalco', 
-    'Pijijiapan', 'Pueblo Nuevo Solistahuacán', 'Rayón', 'Reforma', 'Las Rosas', 
-    'Sabanilla', 'Salto de Agua', 'San Andrés Duraznal', 'San Cristóbal de las Casas', 
-    'San Fernando', 'San Juan Cancuc', 'San Lucas', 'Santiago el Pinar', 
-    'Siltepec', 'Simojovel', 'Sitalá', 'Socoltenango', 'Solosuchiapa', 
-    'Soyaló', 'Suchiapa', 'Suchiate', 'Sunuapa', 'Tapachula', 'Tapalapa', 
-    'Tapilula', 'Tecpatán', 'Tenejapa', 'Teopisca', 'Tila', 'Tonalá', 
-    'Totolapa', 'La Trinitaria', 'Tumbalá', 'Tuxtla Gutiérrez', 'Tuxtla Chico', 
-    'Tuzantán', 'Tzimol', 'Unión Juárez', 'Venustiano Carranza', 'Villa Comaltitlán', 
-    'Villa Corzo', 'Villaflores', 'Yajalón', 'Zinacantán'
-  ];
-
-  private readonly datosCompletos: { [key: string]: DatosMunicipio } = {};
 
   constructor(
     private router: Router, 
     private http: HttpClient, 
-    private cdr: ChangeDetectorRef
-  ) {
-    this.initializeDataSync();
-  }
+    private cdr: ChangeDetectorRef,
+    private municipiosService: MunicipiosService
+  ) {}
 
   ngOnInit(): void {
-    this.municipiosFiltrados = [...this.todosMunicipios];
+    this.loadMunicipiosFromAPI();
   }
 
   ngAfterViewInit(): void {
-    this.initMapImmediate();
+    // Esperamos a que los municipios se carguen antes de inicializar el mapa
+    setTimeout(() => {
+      this.initMapImmediate();
+    }, 100);
   }
 
   ngOnDestroy(): void {
     this.cleanupResources();
   }
 
-  // INICIALIZACIÓN SINCRÓNICA DE DATOS
-  private initializeDataSync(): void {
-    const regiones = ['Norte', 'Centro', 'Sur', 'Este', 'Oeste'];
-    const climas = ['Cálido', 'Templado', 'Semicálido'];
+  // CARGAR MUNICIPIOS DESDE LA API
+  private loadMunicipiosFromAPI(): void {
+    this.updateProgress(10, 'Cargando municipios desde API...');
     
-    this.todosMunicipios.forEach((municipio, index) => {
-      // Asignar colores únicos y vibrantes a cada municipio
-      this.municipioColorMap.set(municipio, this.COLORS[index % this.COLORS.length]);
-      
-      // Datos generados
-      this.datosCompletos[municipio] = {
-        poblacion: 10000 + (index * 1500),
-        superficie: 100 + (index * 10),
-        altitud: 500 + (index * 20),
-        clima: climas[index % climas.length],
-        cabecera: municipio,
-        region: regiones[index % regiones.length]
-      };
+    this.municipiosService.getMunicipios().subscribe({
+      next: (municipios: Municipio[]) => {
+        this.municipios = municipios;
+        this.municipiosFiltrados = [...municipios];
+        this.initializeMunicipioColors();
+        this.updateProgress(30, 'Municipios cargados correctamente');
+        console.log('Municipios cargados:', municipios.length);
+        
+        // Debug: mostrar nombres de municipios para comparación
+        console.log('Nombres en API:', municipios.map(m => `"${m.nombre}"`).sort());
+      },
+      error: (error) => {
+        console.error('Error cargando municipios:', error);
+        this.loadFallbackMunicipios();
+        this.updateProgress(30, 'Usando datos de respaldo');
+      }
+    });
+  }
+
+  // DATOS DE RESPALDO EN CASO DE ERROR DE API
+  private loadFallbackMunicipios(): void {
+    const fallbackNames = [
+      'Acacoyagua', 'Acala', 'Acapetahua', 'Aldama', 'Altamirano', 'Amatán',
+      'Amatenango de la Frontera', 'Amatenango del Valle', 'Angel Albino Corzo',
+      'Arriaga', 'Bejucal de Ocampo', 'Bella Vista', 'Benemérito de las Américas',
+      'Berriozábal', 'Bochil', 'El Bosque', 'Cacahoatán', 'Catazajá',
+      'Chalchihuitán', 'Chamula', 'Chanal', 'Chapultenango', 'Chenalhó',
+      'Chiapa de Corzo', 'Chiapilla', 'Chicoasén', 'Chicomuselo', 'Chilón',
+      'Cintalapa', 'Coapilla', 'Comitán de Domínguez', 'La Concordia', 'Copainalá',
+      'El Porvenir', 'Escuintla', 'Francisco León', 'Frontera Comalapa',
+      'Frontera Hidalgo', 'La Grandeza', 'Huehuetán', 'Huitiupán', 'Huixtán',
+      'Huixtla', 'Ixhuatán', 'Ixtacomitán', 'Ixtapa', 'Ixtapangajoya',
+      'Jiquipilas', 'Jitotol', 'Juárez', 'Larráinzar', 'La Libertad',
+      'Mapastepec', 'Las Margaritas', 'Mazapa de Madero', 'Mazatán', 'Metapa',
+      'Mitontic', 'Montecristo de Guerrero', 'Motozintla', 'Nicolás Ruíz',
+      'Ocosingo', 'Ocotepec', 'Ocozocoautla de Espinosa', 'Ostuacán',
+      'Osumacinta', 'Oxchuc', 'Palenque', 'Pantelhó', 'Pantepec', 'Pichucalco',
+      'Pijijiapan', 'Pueblo Nuevo Solistahuacán', 'Rayón', 'Reforma', 'Las Rosas',
+      'Sabanilla', 'Salto de Agua', 'San Andrés Duraznal', 'San Cristóbal de las Casas',
+      'San Fernando', 'San Juan Cancuc', 'San Lucas', 'Santiago el Pinar',
+      'Siltepec', 'Simojovel', 'Sitalá', 'Socoltenango', 'Solosuchiapa',
+      'Soyaló', 'Suchiapa', 'Suchiate', 'Sunuapa', 'Tapachula', 'Tapalapa',
+      'Tapilula', 'Tecpatán', 'Tenejapa', 'Teopisca', 'Tila', 'Tonalá',
+      'Totolapa', 'La Trinitaria', 'Tumbalá', 'Tuxtla Gutiérrez', 'Tuxtla Chico',
+      'Tuzantán', 'Tzimol', 'Unión Juárez', 'Venustiano Carranza', 'Villa Comaltitlán',
+      'Villa Corzo', 'Villaflores', 'Yajalón', 'Zinacantán'
+    ];
+
+    this.municipios = fallbackNames.map((nombre, index) => ({
+      id_municipio: index + 1,
+      clave_estado: 7,
+      clave_municipio: index + 1,
+      nombre: nombre
+    }));
+
+    this.municipiosFiltrados = [...this.municipios];
+    this.initializeMunicipioColors();
+  }
+
+  // INICIALIZAR COLORES DE MUNICIPIOS
+  private initializeMunicipioColors(): void {
+    this.municipios.forEach((municipio, index) => {
+      this.municipioColorMap.set(municipio.nombre, this.COLORS[index % this.COLORS.length]);
     });
   }
 
   // INICIALIZACIÓN INMEDIATA DEL MAPA
   private initMapImmediate(): void {
     try {
-      this.updateProgress(20, 'Creando mapa...');
+      this.updateProgress(40, 'Creando mapa...');
       
       // Crear fuente vectorial
       this.vectorSource = new VectorSource({
@@ -182,14 +189,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         renderBuffer: 100,
       });
 
-      this.updateProgress(40, 'Configurando vista...');
+      this.updateProgress(50, 'Configurando vista...');
 
       // Configurar vista centrada en Chiapas
       const view = new View({
         center: fromLonLat([-92.6333, 16.75]),
         zoom: 7,
         minZoom: 6,
-        maxZoom: 8, // Limitar zoom para evitar movimientos
+        maxZoom: 8,
         enableRotation: false,
         constrainResolution: true
       });
@@ -208,19 +215,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.vectorLayer
         ],
         view: view,
-        controls: defaultControls({ zoom: false, rotate: false }), // Eliminar controles
+        controls: defaultControls({ zoom: false, rotate: false }),
         interactions: defaultInteractions({
-          dragPan: false, // Desactivar arrastre
-          mouseWheelZoom: false // Desactivar zoom con rueda
+          dragPan: false,
+          mouseWheelZoom: false
         })
       });
 
-      this.updateProgress(60, 'Configurando eventos...');
+      this.updateProgress(70, 'Configurando eventos...');
       this.setupMapEvents();
       this.initTooltip();
       this.initLabelOverlay();
 
-      this.updateProgress(80, 'Cargando municipios...');
+      this.updateProgress(90, 'Cargando municipios...');
       this.loadGeoJSONFast();
 
     } catch (error) {
@@ -291,12 +298,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private createSyntheticGeoJSON(): void {
     const features: Feature<Geometry>[] = [];
     
-    this.todosMunicipios.forEach((municipio, index) => {
+    this.municipios.forEach((municipio, index) => {
       const feature = new Feature({
         geometry: this.createSimplePolygon(index)
       });
-      feature.set('NAME_2', municipio); // Usando NAME_2 como en el GeoJSON real
-      this.featureNameCache.set(feature, municipio);
+      feature.set('NAME_2', municipio.nombre);
+      this.featureNameCache.set(feature, municipio.nombre);
       features.push(feature);
     });
     
@@ -360,16 +367,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // EXTRAER NOMBRE DE MUNICIPIO - CORREGIDO PARA USAR NAME_2
+  // EXTRAER NOMBRE DE MUNICIPIO
   private extractMunicipalityName(feature: Feature<Geometry>): string {
-    return feature.get('NAME_2') || // Primero intentamos con NAME_2 (como en tu ejemplo)
+    return feature.get('NAME_2') || 
            feature.get('NOM_MUN') || 
            feature.get('nombre') || 
            feature.get('NAME') || 
            'Desconocido';
   }
 
-  // ESTILO SIN ETIQUETAS PERMANENTES (SOLO COLORES)
+  // ESTILO SIN ETIQUETAS PERMANENTES
   private getFeatureStyle(feature: Feature<Geometry>): Style {
     const nombre = this.featureNameCache.get(feature) || this.extractMunicipalityName(feature);
     
@@ -401,7 +408,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       strokeWidth = 1;
     }
     
-    // Crear estilo SIN TEXTO (solo colores)
     style = new Style({
       stroke: new Stroke({
         color: strokeColor,
@@ -410,7 +416,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       fill: new Fill({
         color: fillColor
       })
-      // SIN TEXTO - se elimina la parte de Text()
     });
     
     if (this.styleCache.size > 500) {
@@ -424,14 +429,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return style;
   }
 
-  // Generar colores vibrantes basados en el nombre del municipio
+  // Generar colores vibrantes
   private generateVibrantColor(nombre: string): string {
     let hash = 0;
     for (let i = 0; i < nombre.length; i++) {
       hash = nombre.charCodeAt(i) + ((hash << 5) - hash);
     }
     
-    // Colores vibrantes (sin tonos apagados)
     const vibrantColors = [
       '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', 
       '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9',
@@ -459,13 +463,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.map.getTargetElement().style.cursor = 'pointer';
             const nombre = this.featureNameCache.get(feature);
             if (nombre) {
-              this.showTooltip(nombre, evt.coordinate);
-              this.showLabel(nombre, evt.coordinate); // Mostrar etiqueta solo en hover
+              this.showTooltipFromAPI(nombre, evt.coordinate);
+              this.showLabel(nombre, evt.coordinate);
             }
           } else {
             this.map.getTargetElement().style.cursor = '';
             this.hideTooltip();
-            this.hideLabel(); // Ocultar etiqueta cuando no hay hover
+            this.hideLabel();
           }
         }
       }, 16);
@@ -521,21 +525,54 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.map.addOverlay(this.tooltipOverlay);
   }
 
-  // MOSTRAR TOOLTIP
-  private showTooltip(municipio: string, coordinates: any): void {
-    const datos = this.datosCompletos[municipio];
-    if (!datos) return;
+  // MOSTRAR TOOLTIP CON DATOS DE LA API
+  private showTooltipFromAPI(municipio: string, coordinates: any): void {
+    // Buscar el municipio en los datos de la API con búsqueda flexible
+    const municipioData = this.findMunicipioFlexible(municipio);
     
-    this.tooltip.nativeElement.innerHTML = `
-      <div class="tooltip-content">
-        <strong>${municipio}</strong><br>
-        <span class="tooltip-detail">Región: ${datos.region}</span><br>
-        <span class="tooltip-detail">Población: ${datos.poblacion.toLocaleString()}</span>
-      </div>
-    `;
+    if (municipioData) {
+      this.tooltip.nativeElement.innerHTML = `
+        <div class="tooltip-content">
+          <strong>${municipioData.nombre}</strong><br>
+          <span class="tooltip-detail">ID: ${municipioData.id_municipio}</span><br>
+          <span class="tooltip-detail">Clave: ${municipioData.clave_municipio}</span><br>
+          <span class="tooltip-detail">Estado: Chiapas</span>
+        </div>
+      `;
+    } else {
+      // Log para debug - ayuda a identificar nombres que no coinciden
+      console.warn(`Municipio no encontrado en API: "${municipio}"`);
+      this.tooltip.nativeElement.innerHTML = `
+        <div class="tooltip-content">
+          <strong>${municipio}</strong><br>
+          <span class="tooltip-detail">Información no disponible</span>
+        </div>
+      `;
+    }
     
     this.tooltipOverlay.setPosition(coordinates);
     this.tooltip.nativeElement.style.display = 'block';
+  }
+
+  // BÚSQUEDA FLEXIBLE DE MUNICIPIOS
+  private findMunicipioFlexible(nombre: string): Municipio | undefined {
+    const nombreLimpio = this.limpiarNombre(nombre);
+    
+    return this.municipios.find(m => {
+      const nombreAPILimpio = this.limpiarNombre(m.nombre);
+      return nombreAPILimpio === nombreLimpio;
+    });
+  }
+
+  // LIMPIAR NOMBRES PARA COMPARACIÓN
+  private limpiarNombre(nombre: string): string {
+    return nombre
+      .trim() // Quitar espacios al inicio y final
+      .toLowerCase() // Convertir a minúsculas
+      .normalize('NFD') // Normalizar para quitar acentos
+      .replace(/[\u0300-\u036f]/g, '') // Remover diacríticos (acentos)
+      .replace(/\s+/g, ' ') // Reemplazar múltiples espacios por uno solo
+      .replace(/[^\w\s]/g, ''); // Quitar caracteres especiales excepto espacios
   }
 
   // OCULTAR TOOLTIP
@@ -544,11 +581,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tooltipOverlay.setPosition(undefined);
   }
 
-  // SELECCIONAR MUNICIPIO
+  // SELECCIONAR MUNICIPIO (SIN MOSTRAR INFORMACIÓN ADICIONAL)
   public selectMunicipality(municipio: string, feature?: Feature<Geometry>): void {
     this.municipioSeleccionado = municipio;
     this.municipioBuscado = '';
-    this.municipiosFiltrados = [...this.todosMunicipios];
+    this.municipiosFiltrados = [...this.municipios];
     
     if (this.selectFeature) {
       this.clearFeatureStyleCache(this.selectFeature);
@@ -561,14 +598,12 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectFeature.changed();
     }
     
-    this.datosMunicipio = this.datosCompletos[municipio] || this.getDefaultMunicipioData(municipio);
-    
     if (feature?.getGeometry()) {
       const extent = feature.getGeometry()!.getExtent();
       this.map.getView().fit(extent, {
         padding: [50, 50, 50, 50],
         duration: 500,
-        maxZoom: 8 // Limitar zoom máximo
+        maxZoom: 8
       });
     }
     
@@ -583,7 +618,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.map.getView().fit(extent, {
           padding: [20, 20, 20, 20],
           duration: 300,
-          maxZoom: 7 // Limitar zoom máximo
+          maxZoom: 7
         });
       }
     }, 100);
@@ -610,8 +645,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   filtrarMunicipios(): void {
     const busqueda = this.municipioBuscado.toLowerCase();
     this.municipiosFiltrados = busqueda ? 
-      this.todosMunicipios.filter(m => m.toLowerCase().includes(busqueda)) :
-      [...this.todosMunicipios];
+      this.municipios.filter(m => m.nombre.toLowerCase().includes(busqueda)) :
+      [...this.municipios];
   }
 
   seleccionarMunicipio(municipio: string): void {
@@ -631,10 +666,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   verDetallesMunicipio(municipio: string): void {
-    this.seleccionarMunicipio(municipio);
-    const datos = this.datosCompletos[municipio];
-    if (datos) {
-      alert(`${municipio}\nPoblación: ${datos.poblacion.toLocaleString()}\nSuperficie: ${datos.superficie} km²\nRegión: ${datos.region}`);
+    const municipioData = this.findMunicipioFlexible(municipio);
+    if (municipioData) {
+      alert(`${municipioData.nombre}\nID: ${municipioData.id_municipio}\nClave Municipio: ${municipioData.clave_municipio}\nClave Estado: ${municipioData.clave_estado}`);
+    } else {
+      alert(`${municipio}\nInformación no disponible en la API`);
     }
   }
 
@@ -660,17 +696,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     return features.find(f => this.featureNameCache.get(f) === municipio) || null;
   }
 
-  private getDefaultMunicipioData(municipio: string): DatosMunicipio {
-    return {
-      poblacion: 15000,
-      superficie: 200,
-      altitud: 800,
-      clima: 'Templado',
-      cabecera: municipio,
-      region: 'Centro'
-    };
-  }
-
   private hexToRgba(hex: string, alpha: number): string {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -687,12 +712,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // TrackBy function para optimizar *ngFor
-  trackByMunicipio(index: number, municipio: string): string {
-    return municipio;
-  }
-
-  // Método optimizado para formatear números
-  formatNumber(num: number): string {
-    return num.toLocaleString('es-MX');
+  trackByMunicipio(index: number, municipio: Municipio): number {
+    return municipio.id_municipio;
   }
 }

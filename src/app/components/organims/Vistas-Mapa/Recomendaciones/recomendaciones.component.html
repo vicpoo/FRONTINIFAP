@@ -1,0 +1,131 @@
+<!-- recomendaciones.component.html -->
+<div class="min-h-screen bg-gradient-to-b from-green-50 to-white py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header con el nombre del municipio como título principal -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div class="flex flex-col md:flex-row items-center justify-between">
+        <div class="text-center md:text-left mb-4 md:mb-0">
+          <h1 class="text-3xl font-bold text-blue-900">Recomendaciones Nutricionales</h1>
+          <p class="text-gray-600 mt-2 text-lg">Municipio: {{ municipioNombre }}</p>
+        </div>
+        <div class="flex space-x-3">
+          <button *ngIf="recomendaciones.length > 0" 
+                  (click)="descargarTodos()"
+                  class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Descargar Todo
+          </button>
+          <button (click)="volverAlMapa()"
+                  class="bg-[#6A0F36] hover:bg-[#8B294C] text-white px-6 py-2 rounded-lg transition duration-200 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Volver al Mapa
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <!-- Estado de carga -->
+      <div *ngIf="cargando" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+        <p class="mt-6 text-gray-700 text-xl font-semibold">Cargando recomendaciones para {{ municipioNombre }}...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !cargando" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg mb-8">
+        <div class="flex items-center">
+          <svg class="w-8 h-8 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p class="font-bold text-lg">Error</p>
+            <p>{{ error }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de recomendaciones -->
+      <div *ngIf="!cargando && !error">
+        <div class="text-center mb-10">
+          <h2 class="text-2xl font-bold text-blue-900 mb-4">Documentos de Recomendaciones</h2>
+          <p class="text-gray-600 max-w-2xl mx-auto">
+            Aquí encontrarás todas las recomendaciones nutricionales disponibles para el municipio de <strong>{{ municipioNombre }}</strong>.
+          </p>
+        </div>
+
+        <div *ngIf="recomendaciones.length === 0" class="text-center py-16">
+          <svg class="w-24 h-24 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay recomendaciones disponibles</h3>
+          <p class="text-gray-600">Actualmente no hay documentos de recomendaciones para el municipio de <strong>{{ municipioNombre }}</strong>.</p>
+        </div>
+
+        <!-- Diseño tipo noticias -->
+        <div *ngIf="recomendaciones.length > 0" class="space-y-8">
+          <div *ngFor="let recomendacion of recomendaciones; let i = index" 
+               class="news-article p-8 rounded-2xl border-l-4 transition-all duration-300 hover:shadow-xl"
+               [class.border-blue-500]="i % 3 === 0"
+               [class.border-green-500]="i % 3 === 1"
+               [class.border-purple-500]="i % 3 === 2"
+               [class.bg-blue-50]="i % 3 === 0"
+               [class.bg-green-50]="i % 3 === 1"
+               [class.bg-purple-50]="i % 3 === 2">
+            
+            <div class="flex flex-col md:flex-row items-start justify-between gap-6">
+              <div class="flex-1">
+                <div class="flex items-center mb-4">
+                  <span class="px-4 py-2 rounded-full text-sm font-semibold"
+                        [class.bg-blue-200]="i % 3 === 0"
+                        [class.bg-green-200]="i % 3 === 1"
+                        [class.bg-purple-200]="i % 3 === 2"
+                        [class.text-blue-800]="i % 3 === 0"
+                        [class.text-green-800]="i % 3 === 1"
+                        [class.text-purple-800]="i % 3 === 2">
+                    {{ recomendacion.fecha_subida | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">
+                  {{ recomendacion.nombre_pdf || 'Recomendación Nutricional' }}
+                </h3>
+                
+                <p class="text-gray-700 mb-6 leading-relaxed">
+                  Documento de recomendaciones nutricionales específicas para el municipio de <strong>{{ municipioNombre }}</strong>. 
+                  Contiene información valiosa sobre alimentación saludable y recomendaciones adaptadas 
+                  a las necesidades particulares de esta región.
+                </p>
+
+                <div class="text-sm text-gray-600">
+                  <span class="font-semibold">ID de Recomendación:</span> {{ recomendacion.id }}
+                </div>
+              </div>
+              
+              <div class="flex-shrink-0">
+                <button 
+                  (click)="descargarPdf(recomendacion)"
+                  class="flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105"
+                  [class.bg-blue-600]="i % 3 === 0"
+                  [class.bg-green-600]="i % 3 === 1"
+                  [class.bg-purple-600]="i % 3 === 2"
+                  [class.hover:bg-blue-700]="i % 3 === 0"
+                  [class.hover:bg-green-700]="i % 3 === 1"
+                  [class.hover:bg-purple-700]="i % 3 === 2">
+                  <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                  </svg>
+                  <span class="text-white">Descargar PDF</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

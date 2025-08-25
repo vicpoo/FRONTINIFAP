@@ -1,4 +1,4 @@
-<!-- home.component.html - ULTRA OPTIMIZADO -->
+<!-- home.component.html - MODIFICADO PARA API -->
 <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
   <!-- Header -->
   <header class="bg-white shadow-md">
@@ -12,44 +12,8 @@
         </div>
       </div>
 
-      <!-- Buscador y Login -->
+      <!-- Solo el botón de Login -->
       <div class="flex items-center space-x-4">
-        <!-- Buscador optimizado -->
-        <div class="relative">
-          <input 
-            type="text" 
-            [(ngModel)]="municipioBuscado"
-            (input)="filtrarMunicipios()"
-            placeholder="Escribe el municipio" 
-            class="pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-48 md:w-64"
-            autocomplete="off"
-          >
-          <svg class="w-5 h-5 absolute right-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          
-          <!-- Lista de sugerencias optimizada -->
-          <div 
-            *ngIf="municipiosFiltrados.length > 0 && municipioBuscado" 
-            class="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto"
-          >
-            <ul>
-              <li 
-                *ngFor="let municipio of municipiosFiltrados; trackBy: trackByMunicipio" 
-                (click)="seleccionarMunicipio(municipio)"
-                class="px-4 py-2 hover:bg-blue-50 cursor-pointer flex items-center"
-              >
-                <span 
-                  class="w-4 h-4 rounded mr-3 border-2 border-white shadow-sm" 
-                  [style.background-color]="getColorMunicipio(municipio)"
-                ></span>
-                {{ municipio }}
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Botón Login -->
         <button 
           (click)="irALogin()"
           class="bg-[#6A0F36] hover:bg-blue-700 text-white px-4 py-2 rounded-full transition duration-200 flex items-center"
@@ -70,7 +34,6 @@
     <div class="text-center mb-8">
       <h1 class="text-3xl font-bold text-blue-900">TACOS INTERNACIONALES 100% ECHOS DE COMIDA MEXICANA LOCO</h1>
       <p class="text-gray-600 mt-2">Selecciona un municipio en el mapa para ver información detallada</p>
-      <p class="text-sm text-gray-500 mt-1">Haz clic en los municipios para seleccionar, hover para información rápida</p>
     </div>
 
     <!-- Mapa interactivo optimizado -->
@@ -103,22 +66,22 @@
               <tr 
                 *ngFor="let municipio of municipiosFiltrados; trackBy: trackByMunicipio" 
                 class="even:bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
-                (mouseover)="resaltarMunicipioEnMapa(municipio)"
+                (mouseover)="resaltarMunicipioEnMapa(municipio.nombre)"
                 (mouseout)="quitarResaltadoMapa()"
-                (click)="seleccionarMunicipio(municipio)"
-                [class.selected]="municipio === municipioSeleccionado"
+                (click)="seleccionarMunicipio(municipio.nombre)"
+                [class.selected]="municipio.nombre === municipioSeleccionado"
               >
-                <td class="p-3 font-medium">{{ municipio }}</td>
+                <td class="p-3 font-medium">{{ municipio.nombre }}</td>
                 <td class="p-3 text-center">
                   <span 
                     class="w-6 h-6 rounded border-2 border-white shadow-sm inline-block"
-                    [style.background-color]="getColorMunicipio(municipio)"
-                    [title]="municipio"
+                    [style.background-color]="getColorMunicipio(municipio.nombre)"
+                    [title]="municipio.nombre"
                   ></span>
                 </td>
                 <td class="p-3 text-center">
                   <button 
-                    (click)="verDetallesMunicipio(municipio); $event.stopPropagation()"
+                    (click)="verDetallesMunicipio(municipio.nombre); $event.stopPropagation()"
                     class="text-blue-600 hover:text-blue-800 transition-colors" 
                     title="Ver detalles"
                     type="button"
@@ -172,74 +135,16 @@
           </div>
         </div>
         
-        <!-- Información del municipio seleccionado optimizada -->
-        <div *ngIf="municipioSeleccionado; else emptyState" class="municipio-info">
-          <h3 class="text-xl font-semibold flex items-center justify-center">
-            <span 
-              class="w-6 h-6 rounded border-2 border-white shadow-sm inline-block mr-3"
-              [style.background-color]="getColorMunicipio(municipioSeleccionado)"
-            ></span>
-            {{ municipioSeleccionado }}
-          </h3>
-          
-          <div class="info-grid mt-3">
-            <div class="info-item">
-              <div class="info-label">Población</div>
-              <div class="info-value">{{ formatNumber(datosMunicipio.poblacion) }} hab.</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Superficie</div>
-              <div class="info-value">{{ datosMunicipio.superficie }} km²</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Altitud</div>
-              <div class="info-value">{{ datosMunicipio.altitud }} m</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Clima</div>
-              <div class="info-value">{{ datosMunicipio.clima }}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Cabecera</div>
-              <div class="info-value">{{ datosMunicipio.cabecera }}</div>
-            </div>
-            <div class="info-item">
-              <div class="info-label">Región</div>
-              <div class="info-value">{{ datosMunicipio.region }}</div>
-            </div>
-          </div>
-          
-          <!-- Botones de acción optimizados -->
-          <div class="mt-4 text-center space-x-3">
-            <button 
-              (click)="verDetallesMunicipio(municipioSeleccionado)"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition duration-200"
-              type="button"
-            >
-              Ver más detalles
-            </button>
-            <button 
-              (click)="resetearVistaMapa()"
-              class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition duration-200"
-              type="button"
-            >
-              Resetear vista
-            </button>
+        <!-- Estado vacío optimizado (Sin información de municipio) -->
+        <div class="municipio-info municipio-info-empty">
+          <div class="text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <p class="text-gray-500">Pasa el cursor sobre un municipio para ver su información</p>
           </div>
         </div>
-
-        <!-- Estado vacío optimizado -->
-        <ng-template #emptyState>
-          <div class="municipio-info municipio-info-empty">
-            <div class="text-center">
-              <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
-              <p class="text-gray-600">Haz clic en un municipio para ver su información</p>
-            </div>
-          </div>
-        </ng-template>
       </div>
     </div>
   </main>
