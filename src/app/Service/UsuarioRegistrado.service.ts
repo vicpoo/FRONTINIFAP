@@ -11,12 +11,16 @@ export class UsuarioRegistradoService {
   constructor(private http: HttpClient) {}
 
   // 1. Subir archivo Excel de análisis químicos
-  uploadExcel(file: File, correoUsuario: string): Observable<any> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('correo_usuario', correoUsuario);
-    return this.http.post(`${this.apiUrl}/analisis-quimicos/upload-excel/`, formData);
-  }
+  // 1. Subir archivo Excel de análisis químicos
+uploadExcel(file: File, correoUsuario: string): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file);                     // Archivo Excel
+  formData.append('correo_usuario', correoUsuario);  // Correo del usuario
+  formData.append('nombre_archivo', file.name);      // Nombre del archivo requerido por backend
+
+  return this.http.post(`${this.apiUrl}/analisis-quimicos/upload-excel/`, formData);
+}
+
 
   // 2. Obtener archivos pendientes
   getPendientes(correoUsuario: string): Observable<any> {
