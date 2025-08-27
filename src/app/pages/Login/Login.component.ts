@@ -1,9 +1,10 @@
-//Login.component.ts
+// Login.component.ts
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService, LoginRequest } from '../../Service/Usuarios.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -11,7 +12,7 @@ import { UsuariosService, LoginRequest } from '../../Service/Usuarios.service';
   imports: [CommonModule, FormsModule],
   templateUrl: './Login.component.html',
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
   isLoading: boolean = false;
@@ -19,8 +20,28 @@ export class LoginComponent {
 
   constructor(
     private usuariosService: UsuariosService,
+    private authService: AuthService,
     private router: Router
   ) {}
+
+  ngOnInit(): void {
+    // Limpiar cualquier sesión previa al cargar el login
+    this.authService.logout();
+    
+    // Si por alguna razón todavía hay token válido, redirigir
+    if (this.authService.hasValidToken()) {
+      this.redirectBasedOnRole();
+    }
+  }
+
+  private redirectBasedOnRole(): void {
+    const userRole = this.authService.getUserRole();
+    if (userRole === 1) {
+      this.router.navigate(['/admin']);
+    } else if (userRole === 2) {
+      this.router.navigate(['/Usuario']);
+    }
+  }
 
   login() {
     if (!this.email || !this.password) {
@@ -40,15 +61,14 @@ export class LoginComponent {
       next: (response) => {
         console.log('✅ Login exitoso:', response);
         
-        // Guardar el token en localStorage
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('user', JSON.stringify({
+        // Guardar el token y datos de usuario usando AuthService
+        this.authService.setAuthData(response.token, {
           id: response.id_user,
           nombre: response.nombre,
           apellido: response.apellido,
           correo: response.correo,
           rol_id: response.rol_id_FK
-        }));
+        });
 
         this.isLoading = false;
         
