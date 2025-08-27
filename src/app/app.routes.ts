@@ -12,17 +12,17 @@ import { AuthGuard } from './auth/auth.guard';
 import { AdminGuard } from './auth/admin.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
   { path: '', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { 
+    path: 'nutricionales/:id', 
+    component: RecomendacionesNutricionalesComponent, 
+  },
   { 
     path: 'Usuario', 
     component: UsuarioComponent,
     canActivate: [AuthGuard],
     data: { expectedRole: 2 }
-  },
-  { 
-    path: 'nutricionales/:id', 
-    component: RecomendacionesNutricionalesComponent,
   },
   {
     path: 'admin',
@@ -35,6 +35,5 @@ export const routes: Routes = [
       { path: '', redirectTo: 'lista-usuarios', pathMatch: 'full' }
     ],
   },
-  // Esta debe ser la ÚLTIMA ruta para capturar solo rutas no definidas
   { path: '**', redirectTo: '' }
 ];

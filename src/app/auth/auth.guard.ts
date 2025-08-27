@@ -31,7 +31,8 @@ export class AuthGuard implements CanActivate {
       
       return true;
     } else {
-      // Token inválido o expirado
+      // Token inválido o expirado - solo redirigir si es ruta protegida
+      // Las rutas públicas como 'nutricionales/:id' no deben redirigir
       this.authService.logout();
       this.router.navigate(['/login']);
       return false;
