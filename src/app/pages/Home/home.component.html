@@ -1,38 +1,35 @@
 <!-- home.component.html - MODIFICADO PARA API -->
 <div class="min-h-screen bg-gradient-to-b from-green-50 to-white">
   <!-- Header -->
-  <header class="bg-white shadow-md">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <div class="bg-[#6A0F36] text-white p-2 rounded mr-3 font-bold">INIFAP</div>
-        <div class="hidden md:block">
-          <p class="text-xs font-semibold">POLAR SOFT</p>
-          <p class="text-xs">DESING BY V Y D</p>
-        </div>
-      </div>
-
-      <!-- Solo el botón de Login -->
-      <div class="flex items-center space-x-4">
-        <button 
-          (click)="irALogin()"
-          class="bg-[#6A0F36] hover:bg-blue-700 text-white px-4 py-2 rounded-full transition duration-200 flex items-center"
-          type="button"
-        >
-          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
-          Login
-        </button>
-      </div>
+<header class="bg-white shadow-md">
+  <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Logo con imagen -->
+    <div class="flex items-center">
+      <img src="assets/gob.png" alt="Logo Empresa" class="h-12 w-auto mr-3">
     </div>
-  </header>
+
+    <!-- Botón de Login al final -->
+    <div>
+      <button 
+        (click)="irALogin()"
+        class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full transition duration-200 flex items-center"
+        type="button"
+      >
+        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        Iniciar sesión
+      </button>
+    </div>
+  </div>
+</header>
 
   <!-- Contenido principal -->
   <main class="container mx-auto px-4 py-8">
     <!-- Título optimizado -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold text-blue-900">TACOS INTERNACIONALES 100% ECHOS DE COMIDA MEXICANA LOCO</h1>
+      <h1 class="text-3xl font-bold text-green-900">MAPA DE ANALISIS DE SUELO DE CHIAPAS</h1>
       <p class="text-gray-600 mt-2">Selecciona un municipio en el mapa para ver información detallada</p>
     </div>
 
@@ -65,7 +62,7 @@
             <tbody>
               <tr 
                 *ngFor="let municipio of municipiosFiltrados; trackBy: trackByMunicipio" 
-                class="even:bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
+                class="even:bg-gray-50 hover:bg-green-100 cursor-pointer transition-colors"
                 (mouseover)="resaltarMunicipioEnMapa(municipio.nombre)"
                 (mouseout)="quitarResaltadoMapa()"
                 (click)="seleccionarMunicipio(municipio.nombre)"
@@ -74,7 +71,7 @@
                 <td class="p-3 font-medium">{{ municipio.nombre }}</td>
                 <td class="p-3 text-center">
                   <span 
-                    class="w-6 h-6 rounded border-2 border-white shadow-sm inline-block"
+                    class="w-6 h-6 rounded border-2 border-black shadow-sm inline-block"
                     [style.background-color]="getColorMunicipio(municipio.nombre)"
                     [title]="municipio.nombre"
                   ></span>
@@ -82,7 +79,7 @@
                 <td class="p-3 text-center">
                   <button 
                     (click)="verDetallesMunicipio(municipio.nombre); $event.stopPropagation()"
-                    class="text-blue-600 hover:text-blue-800 transition-colors" 
+                    class="text-green-600 hover:text-red-800 transition-colors" 
                     title="Ver detalles"
                     type="button"
                   >

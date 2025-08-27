@@ -139,7 +139,7 @@ th, td {
 }
 
 th {
-  background-color: #2d3748;
+  background-color: #009639;
   color: white;
   font-weight: 600;
   position: sticky;
@@ -299,7 +299,7 @@ tbody tr.selected {
 
 /* Header de tabla optimizado */
 .table-header {
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  background: linear-gradient(135deg, #009639 0%, #01782f 100%);
   color: white;
   padding: 12px;
   border-radius: var(--border-radius) var(--border-radius) 0 0;

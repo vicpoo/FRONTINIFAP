@@ -49,11 +49,60 @@
     </header>
 
     <div class="p-8 flex-1 overflow-auto">
-      <!-- Sección de carga de archivos -->
-      <div class="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 rounded-lg p-10 bg-white mb-8">
-        <input type="file" (change)="onFileSelected($event)" class="mb-4">
-        <button class="px-6 py-3 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700" (click)="subirArchivo()">Subir</button>
+      <!-- Botón para abrir modal de carga -->
+      <div class="mb-6">
+        <button class="px-6 py-3 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700"
+                (click)="mostrarModal = true">
+          Subir Nuevo Archivo
+        </button>
       </div>
+
+<!-- Modal de carga de archivo -->
+<div *ngIf="mostrarModal" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-2xl w-[420px] p-6">
+    <h2 class="text-2xl font-bold mb-5 text-center text-green-700">Subir Archivo</h2>
+
+    <form>
+      <!-- Archivo -->
+      <label class="block mb-3 font-semibold text-gray-700">Seleccionar archivo</label>
+      <div class="relative mb-5">
+        <input 
+          type="file" 
+          id="archivoInput"
+          (change)="onFileSelected($event)"
+          class="hidden" />
+        <label for="archivoInput"
+          class="flex items-center justify-center w-full px-4 py-3 border border-green-500 text-green-700 rounded-lg cursor-pointer hover:bg-green-50 transition">
+          <span *ngIf="!archivoExcel">Elegir archivo...</span>
+          <span *ngIf="archivoExcel">{{ archivoExcel.name }}</span>
+        </label>
+      </div>
+
+      <!-- Correo (rellenado automático) -->
+      <label class="block mb-3 font-semibold text-gray-700">Correo del Usuario</label>
+      <input type="text" [value]="correoUsuario" readonly 
+        class="w-full border rounded px-3 py-2 mb-5 bg-gray-100 text-gray-600">
+
+      <!-- Nombre del archivo -->
+      <label class="block mb-3 font-semibold text-gray-700">Nombre del Archivo</label>
+      <input type="text" [(ngModel)]="nombreArchivo" name="nombreArchivo" 
+        class="w-full border rounded px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+      <!-- Botones -->
+      <div class="flex justify-between mt-6">
+        <button type="button" (click)="subirArchivo()"
+                class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 shadow">
+          Aceptar
+        </button>
+        <button type="button" (click)="cerrarModal()"
+                class="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 shadow">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 
       <!-- Tabla -->
       <div class="overflow-x-auto">
