@@ -63,6 +63,8 @@
     <h2 class="text-2xl font-bold mb-4">Revisión del Archivo</h2>
     <p><strong>Empleado:</strong> {{ archivoSeleccionado?.usuario }}</p>
     <p><strong>Archivo:</strong> {{ archivoSeleccionado?.nombre }}</p>
+    <p><strong>ID Usuario:</strong> {{ archivoSeleccionado?.id_user }}</p>
+
 
     <!-- Botón de descarga -->
     <div class="mt-4">
@@ -83,7 +85,7 @@
             name="accion" 
             value="validar" 
             [(ngModel)]="accionSeleccionada"
-          /> Validar
+          /> Verificar
         </label>
         <label class="flex items-center gap-2">
           <input 

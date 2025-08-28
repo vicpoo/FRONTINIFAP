@@ -4,4 +4,5 @@ interface ArchivoPendiente {
   nombre: string;
   fecha: string;
   estatus: string;
+  id_user?: number; // agregado para descarga
 }

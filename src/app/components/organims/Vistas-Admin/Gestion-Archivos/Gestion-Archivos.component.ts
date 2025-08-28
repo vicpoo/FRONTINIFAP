@@ -3,15 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { GestionArchivosAdminService } from '../../../../Service/gestion-archivos-admin.service';
 
-interface ArchivoPendiente {
-  usuario: string;
-  correo: string;
-  nombre: string;
-  fecha: string;
-  estatus: string;
-  id_user?: number; // agregado para descarga
-}
-
 @Component({
   selector: 'app-gestion-archivos',
   standalone: true,
@@ -32,7 +23,7 @@ export class GestionArchivosComponent implements OnInit {
 
   modalAbierto: boolean = false;
   archivoSeleccionado: ArchivoPendiente | null = null;
-  accionSeleccionada: string = ''; // validar | rechazar
+  accionSeleccionada: string = ''; 
   comentario: string = '';
   intentoGuardar: boolean = false;
 
@@ -53,7 +44,7 @@ export class GestionArchivosComponent implements OnInit {
             nombre: archivo,
             fecha: usuario.fecha_creacion,
             estatus: usuario.estatus?.toUpperCase() || 'PENDIENTE',
-            id_user: usuario.id_user // <-- IMPORTANTE para descarga
+            id_user: usuario.user_id // <-- IMPORTANTE para descarga
           }))
         );
         this.archivos = [...this.archivosOriginales];
@@ -86,26 +77,37 @@ export class GestionArchivosComponent implements OnInit {
     this.intentoGuardar = false;
   }
 
+
+  seleccionarArchivo(archivo: ArchivoPendiente) {
+  this.archivoSeleccionado = archivo;
+  console.log("Archivo seleccionado:", archivo);
+}
   /**
    * Descargar archivo Excel
    */
-  descargarArchivo(id_user?: number): void {
-    if (!id_user) return;
-
-    this.gestionArchivosService.descargarArchivoUsuario(id_user).subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `archivo_usuario_${id_user}.xlsx`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      },
-      error: (err) => {
-        console.error('Error al descargar archivo:', err);
-      }
-    });
+  descargarArchivo(userId?: number, nombreArchivo?: string) {
+  if (!userId) {
+    console.error('No se encontró el userId');
+    return;
   }
+
+  this.gestionArchivosService.descargarArchivo(userId, nombreArchivo).subscribe({
+    next: (data: Blob) => {
+      const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo ? nombreArchivo : `usuario_${userId}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => {
+      console.error('Error al descargar archivo', err);
+    }
+  });
+}
+
+
 
   /**
    * Guardar revisión del archivo

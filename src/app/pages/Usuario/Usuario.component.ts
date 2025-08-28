@@ -22,6 +22,8 @@ export class UsuarioComponent implements OnInit {
   nombreArchivo: string = '';
   mostrarModal: boolean = false;
   comentarioInvalido: string | null = null;
+  comentarioRecibido: boolean = false;
+
 
   constructor(
     private usuarioService: UsuarioRegistradoService,
@@ -124,6 +126,8 @@ export class UsuarioComponent implements OnInit {
       }
     });
   }
+
+  
 
   onFileSelected(event: any) {
     this.archivoExcel = event.target.files[0];
