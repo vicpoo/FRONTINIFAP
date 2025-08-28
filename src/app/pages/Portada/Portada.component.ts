@@ -14,28 +14,24 @@ export class PortadaComponent {
   // Información de los desarrolladores
   desarrolladores = [
     {
-      nombre: 'Desarrollador 1',
-      rol: 'Frontend Developer',
-      imagen: 'assets/desarrollador1.jpg',
-      descripcion: 'Especialista en Angular y diseño de interfaces'
+      nombre: 'Victor Alejandro Hernández Pérez',
+      rol: 'Full Stack Developer, Lider de equipo',
+      descripcion: 'Encargado de coordinar el equipo, desarrollo tanto en frontend como backend, con especialidad en Angular e integración de interfaces.'
     },
     {
-      nombre: 'Desarrollador 2',
+      nombre: 'Katherine Romina Espinoza Barrionuevo',
+      rol: 'UI/UX Designer, Analista de calidad',
+      descripcion: 'Responsable de la experiencia de usuario y las pruebas de calidad, asegurando interfaces intuitivas y usabilidad.'
+    },
+    {
+      nombre: 'Denzel Enrique Santiago Zepeda',
+      rol: 'Frontend Developer, UI/UX Designer',
+      descripcion: 'Especialista en Angular y diseño de interfaces, encargado de la integración y despliegue en el entorno frontend.'
+    },
+    {
+      nombre: 'Edwin de jesus Diaz Garcia',
       rol: 'Backend Developer',
-      imagen: 'assets/desarrollador2.jpg',
-      descripcion: 'Experto en APIs y bases de datos'
-    },
-    {
-      nombre: 'Desarrollador 3',
-      rol: 'Full Stack Developer',
-      imagen: 'assets/desarrollador3.jpg',
-      descripcion: 'Encargado de la integración y despliegue'
-    },
-    {
-      nombre: 'Desarrollador 4',
-      rol: 'UI/UX Designer',
-      imagen: 'assets/desarrollador4.jpg',
-      descripcion: 'Diseñador de experiencias de usuario'
+      descripcion: 'Responsable del desarrollo y mantenimiento de la lógica del servidor, integración de APIs y gestión de bases de datos.'
     }
   ];
 
