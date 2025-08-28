@@ -16,15 +16,16 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { 
     path: 'nutricionales/:id', 
-    component: RecomendacionesNutricionalesComponent, 
+    component: RecomendacionesNutricionalesComponent
   },
+  
   { 
     path: 'Usuario', 
     component: UsuarioComponent,
     canActivate: [AuthGuard],
-    data: { expectedRole: 2 }
+    data: { expectedRole: 2 } 
   },
-  {
+    {
     path: 'admin',
     component: AdminComponent,
     canActivate: [AuthGuard, AdminGuard],
@@ -33,7 +34,8 @@ export const routes: Routes = [
       { path: 'Gestion-Archivos', component: GestionArchivosComponent },
       { path: 'Recomendaciones', component: RecomendacionesComponent },
       { path: '', redirectTo: 'lista-usuarios', pathMatch: 'full' }
-    ],
+    ]
   },
-  { path: '**', redirectTo: '' }
+  
+  { path: '**', redirectTo: 'login' }
 ];

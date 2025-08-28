@@ -14,10 +14,9 @@ export class AdminGuard implements CanActivate {
     if (this.authService.hasValidToken()) {
       const userRole = this.authService.getUserRole();
       
-      if (userRole === 1) { // Rol de administrador
+      if (userRole === 1) {
         return true;
       } else {
-        // Redirigir según el rol del usuario
         if (userRole === 2) {
           this.router.navigate(['/Usuario']);
         } else {
@@ -26,7 +25,6 @@ export class AdminGuard implements CanActivate {
         return false;
       }
     } else {
-      this.authService.logout();
       this.router.navigate(['/login']);
       return false;
     }

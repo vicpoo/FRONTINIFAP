@@ -2,11 +2,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { Router } from '@angular/router';
 
 interface DecodedToken {
   exp: number;
   iat: number;
-  // Agrega otras propiedades que tenga tu token
+  [key: string]: any;
 }
 
 @Injectable({
@@ -17,63 +18,61 @@ export class AuthService {
   private userKey = 'userData';
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasValidToken());
   
-  constructor() {
-    // Limpiar tokens expirados al inicializar
-    this.cleanupExpiredTokens();
-    
-    // Verificar expiración del token periódicamente
+  constructor(private router: Router) {
+    console.log('AuthService - Inicializando, token válido:', this.hasValidToken());
+    this.checkTokenOnInit();
     this.checkTokenExpirationPeriodically();
   }
 
-  // Limpiar tokens expirados al inicializar
-  private cleanupExpiredTokens(): void {
+  private checkTokenOnInit(): void {
     if (this.hasToken() && this.isTokenExpired()) {
-      console.log('🔴 Token expirado encontrado, limpiando...');
+      console.log('AuthService - Token expirado encontrado al inicializar');
       this.clearSessionData();
+      this.isAuthenticatedSubject.next(false);
     }
   }
 
-  // Verificar expiración del token cada minuto
   private checkTokenExpirationPeriodically(): void {
     setInterval(() => {
       if (this.hasToken() && this.isTokenExpired()) {
+        console.log('AuthService - Token expirado, cerrando sesión');
         this.logout();
       }
-    }, 60000); // Verificar cada minuto
+    }, 60000);
   }
 
-  // Guardar token y datos de usuario
   setAuthData(token: string, user: any): void {
+    console.log('AuthService - Guardando datos de autenticación');
     localStorage.setItem(this.tokenKey, token);
     localStorage.setItem(this.userKey, JSON.stringify(user));
     this.isAuthenticatedSubject.next(true);
   }
 
-  // Obtener token
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    const token = localStorage.getItem(this.tokenKey);
+    return token;
   }
 
-  // Obtener datos de usuario
   getUser(): any {
     const userStr = localStorage.getItem(this.userKey);
     return userStr ? JSON.parse(userStr) : null;
   }
 
-  // Verificar si hay token
   hasToken(): boolean {
     return !!this.getToken();
   }
 
-  // Verificar si el token es válido (existe y no está expirado)
   hasValidToken(): boolean {
-    return this.hasToken() && !this.isTokenExpired();
+    const hasValid = this.hasToken() && !this.isTokenExpired();
+    console.log('AuthService - Token válido:', hasValid);
+    return hasValid;
   }
 
-  // Verificar si el token está expirado
   isTokenExpired(): boolean {
     const token = this.getToken();
-    if (!token) return true;
+    if (!token) {
+      return true;
+    }
 
     try {
       const decoded: DecodedToken = jwtDecode(token);
@@ -84,32 +83,38 @@ export class AuthService {
     }
   }
 
-  // Verificar si el usuario está autenticado
   isAuthenticated(): Observable<boolean> {
     return this.isAuthenticatedSubject.asObservable();
   }
 
-  // Cerrar sesión
-  logout(): void {
-    this.clearSessionData();
-    this.isAuthenticatedSubject.next(false);
+  get isAuthenticatedSync(): boolean {
+    return this.hasValidToken();
   }
 
-  // Limpiar datos de sesión
+  logout(): void {
+    console.log('AuthService - Cerrando sesión');
+    this.clearSessionData();
+    this.isAuthenticatedSubject.next(false);
+    this.router.navigate(['/login']);
+  }
+
   private clearSessionData(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
   }
 
-  // Obtener rol del usuario
   getUserRole(): number | null {
     const user = this.getUser();
     return user ? user.rol_id : null;
   }
 
-  // Obtener ID del usuario
   getUserId(): number | null {
     const user = this.getUser();
     return user ? user.id : null;
+  }
+
+  getUserName(): string | null {
+    const user = this.getUser();
+    return user ? user.name : null;
   }
 }
