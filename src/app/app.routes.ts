@@ -10,9 +10,11 @@ import { LoginComponent } from './pages/Login/Login.component';
 import { RecomendacionesNutricionalesComponent } from './components/organims/Vistas-Mapa/Recomendaciones/recomendaciones-nutricionales.component';
 import { AuthGuard } from './auth/auth.guard';
 import { AdminGuard } from './auth/admin.guard';
+import { PortadaComponent } from './pages/Portada/Portada.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
+  { path: '', component: PortadaComponent},
+  { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { 
     path: 'nutricionales/:id', 

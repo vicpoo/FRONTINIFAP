@@ -22,7 +22,7 @@ export class SideNavAdminComponent {
   handleItemClick(item: any) {
     switch (item.label) {
       case 'REGRESAR':
-        this.router.navigate(['']);
+        this.router.navigate(['home']);
         break;
       case 'GESTION DE ARCHIVOS':
         this.router.navigate(['admin/Gestion-Archivos']);

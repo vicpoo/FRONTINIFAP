@@ -105,7 +105,7 @@ export class RecomendacionesNutricionalesComponent implements OnInit {
   }
 
   volverAlMapa(): void {
-    this.router.navigate(['/']);
+    this.router.navigate(['/home']);
   }
 
   // Método para refrescar las recomendaciones si es necesario
