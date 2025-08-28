@@ -16,60 +16,42 @@
   </div>
 
   <!-- Tabla de usuarios pendientes -->
- <!-- Tabla de usuarios pendientes -->
-<table class="w-full border-collapse">
-  <thead>
-    <tr class="bg-green-700 text-white">
-      <th class="p-2">NOMBRE DE USUARIO</th>
-      <th class="p-2">CORREO</th>
-      <th class="p-2">NOMBRE DEL ARCHIVO</th>
-      <th class="p-2">FECHA SUBIDO</th>
-      <th class="p-2">ESTATUS</th>
-      <th class="p-2">OPCIONES</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let archivo of archivos" class="bg-green-200">
-      <td class="p-2">{{ archivo.usuario }}</td>
-      <td class="p-2">{{ archivo.correo }}</td>
-      <td class="p-2">{{ archivo.nombre }}</td>
-      <td class="p-2">{{ archivo.fecha }}</td>
-      <td class="p-2">{{ archivo.estatus }}</td>
-      <td class="p-2">
-        <button 
-          (click)="abrirModal(archivo)" 
-          class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-          Ver
-        </button>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-  <!-- Detalles de usuario -->
-  <div *ngIf="detallesUsuario" class="mt-6 p-4 border rounded bg-gray-100">
-    <h3 class="text-xl font-bold mb-4">
-      Archivos pendientes de {{ usuarioSeleccionado }}
-    </h3>
-    <ul>
-      <li *ngFor="let archivo of detallesUsuario.archivos_pendientes" class="p-2 border-b">
-        <strong>{{ archivo.nombre_archivo }}</strong> - {{ archivo.cantidad_analisis }} análisis
-        <br />
-        <small>Desde: {{ archivo.fecha_primer_registro }} hasta {{ archivo.fecha_ultimo_registro }}</small>
-      </li>
-    </ul>
-  </div>
+  <table class="w-full border-collapse">
+    <thead>
+      <tr class="bg-green-700 text-white">
+        <th class="p-2">NOMBRE DE USUARIO</th>
+        <th class="p-2">CORREO</th>
+        <th class="p-2">NOMBRE DEL ARCHIVO</th>
+        <th class="p-2">FECHA SUBIDO</th>
+        <th class="p-2">ESTATUS</th>
+        <th class="p-2">OPCIONES</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let archivo of archivos" class="bg-green-200">
+        <td class="p-2">{{ archivo.usuario }}</td>
+        <td class="p-2">{{ archivo.correo }}</td>
+        <td class="p-2">{{ archivo.nombre }}</td>
+        <td class="p-2">{{ archivo.fecha }}</td>
+        <td class="p-2">{{ archivo.estatus }}</td>
+        <td class="p-2">
+          <button 
+            (click)="abrirModal(archivo)" 
+            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+            Ver
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
-
-
 
 <!-- Modal -->
 <div 
   *ngIf="modalAbierto" 
   class="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 z-50">
   <div class="bg-white rounded-lg p-6 w-3/4 max-w-2xl shadow-lg relative">
-    
+
     <!-- Botón de cerrar -->
     <button 
       (click)="cerrarModal()" 
@@ -82,35 +64,59 @@
     <p><strong>Empleado:</strong> {{ archivoSeleccionado?.usuario }}</p>
     <p><strong>Archivo:</strong> {{ archivoSeleccionado?.nombre }}</p>
 
-    <!-- Vista previa del archivo -->
-    <div class="border rounded mt-4 mb-4 h-64 overflow-hidden">
-      <iframe 
-        *ngIf="archivoSeleccionado" 
-        [src]="getArchivoUrl(archivoSeleccionado)" 
-        class="w-full h-full"
-        frameborder="0">
-      </iframe>
+    <!-- Botón de descarga -->
+    <div class="mt-4">
+      <button 
+        (click)="descargarArchivo(archivoSeleccionado?.id_user)"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Descargar Excel
+      </button>
     </div>
 
-    <!-- Selector de estatus -->
-    <label for="estatus" class="block font-semibold mb-2">Estatus:</label>
-    <select id="estatus" [(ngModel)]="estatusSeleccionado" class="p-2 border rounded w-full mb-4">
-      <option value="aprobado">Aprobado</option>
-      <option value="rechazado">Rechazado</option>
-    </select>
+    <!-- Selector de acción -->
+    <div class="mt-6">
+      <p class="font-semibold mb-2">Selecciona una acción:</p>
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2">
+          <input 
+            type="radio" 
+            name="accion" 
+            value="validar" 
+            [(ngModel)]="accionSeleccionada"
+          /> Validar
+        </label>
+        <label class="flex items-center gap-2">
+          <input 
+            type="radio" 
+            name="accion" 
+            value="rechazar" 
+            [(ngModel)]="accionSeleccionada"
+          /> Rechazar
+        </label>
+      </div>
+    </div>
 
     <!-- Comentario -->
-    <label for="comentario" class="block font-semibold mb-2">Comentario:</label>
-    <textarea 
-      id="comentario" 
-      [(ngModel)]="comentario" 
-      rows="3"
-      class="p-2 border rounded w-full mb-4"
-      placeholder="Escribe un comentario...">
-    </textarea>
+    <div class="mt-4">
+      <label for="comentario" class="block font-semibold mb-2">
+        Comentario 
+        <span *ngIf="accionSeleccionada === 'rechazar'" class="text-red-600">*</span>
+      </label>
+      <textarea 
+        id="comentario" 
+        [(ngModel)]="comentario" 
+        rows="3"
+        class="p-2 border rounded w-full mb-2"
+        placeholder="Escribe un comentario...">
+      </textarea>
+      <p *ngIf="accionSeleccionada === 'rechazar' && !comentario && intentoGuardar"
+         class="text-red-500 text-sm">
+        El comentario es obligatorio para rechazar el archivo.
+      </p>
+    </div>
 
     <!-- Botones de acción -->
-    <div class="flex justify-end gap-4">
+    <div class="flex justify-end gap-4 mt-4">
       <button 
         (click)="cerrarModal()" 
         class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">

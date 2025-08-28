@@ -1,17 +1,11 @@
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgForOf, NgClass } from '@angular/common';
 import { UsuarioRegistradoService } from '../../Service/UsuarioRegistrado.service';
 import { Router } from '@angular/router';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
-
-interface Archivo {
-  nombre: string;
-  tipo: string;
-  fecha: string;
-  estatus: 'pendiente' | 'validado' | 'rechazado';
-  comentario?: string; // solo para rechazados
-}
+import { Archivo } from '../../Interface/Archivo';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-usuario',
@@ -23,7 +17,7 @@ export class UsuarioComponent implements OnInit {
   archivos: Archivo[] = [];
   filtro: 'pendiente' | 'validado' | 'rechazado' = 'pendiente';
 
-  correoUsuario = 'Denzel@gmail.com'; 
+  correoUsuario = '';
   archivoExcel: File | null = null;
   nombreArchivo: string = '';
   mostrarModal: boolean = false;
@@ -31,21 +25,29 @@ export class UsuarioComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioRegistradoService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    this.setFiltro('pendiente'); // Solo pendientes al inicio
+    const user = this.authService.getUser();
+
+    if (user) {
+      this.correoUsuario = user.correo;
+      console.log('Correo del usuario logueado:', this.correoUsuario);
+      this.setFiltro('pendiente');
+    } else {
+      console.warn('No se encontró información del usuario, redirigiendo al login...');
+      this.router.navigate(['/login']);
+    }
   }
 
-  // Mostrar u ocultar modal
   cerrarModal() {
     this.mostrarModal = false;
     this.archivoExcel = null;
     this.nombreArchivo = '';
   }
 
-  // Cambiar filtro
   setFiltro(f: 'pendiente' | 'validado' | 'rechazado') {
     this.filtro = f;
     this.archivos = [];
@@ -131,35 +133,34 @@ export class UsuarioComponent implements OnInit {
   }
 
   subirArchivo() {
-  if (this.archivoExcel) {
-    this.usuarioService.uploadExcel(this.archivoExcel, this.correoUsuario).subscribe({
-      next: (res) => {
-        Swal.fire({
-          title: '¡Éxito!',
-          text: 'El archivo se subió correctamente',
-          icon: 'success',
-          confirmButtonColor: '#3085d6',
-          confirmButtonText: 'Aceptar'
-        });
-
-        this.cerrarModal();
-        this.archivos = [];
-        this.cargarPendientes();
-        this.cargarValidados();
-      },
-      error: (err) => {
-        Swal.fire({
-          title: 'Error',
-          text: 'Hubo un problema al subir el archivo',
-          icon: 'error',
-          confirmButtonColor: '#d33',
-          confirmButtonText: 'Intentar de nuevo'
-        });
-        console.error(err);
-      }
-    });
+    if (this.archivoExcel) {
+      this.usuarioService.uploadExcel(this.archivoExcel, this.correoUsuario).subscribe({
+        next: (res) => {
+          Swal.fire({
+            title: '¡Éxito!',
+            text: 'El archivo se subió correctamente',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Aceptar'
+          });
+          this.cerrarModal();
+          this.archivos = [];
+          this.cargarPendientes();
+          this.cargarValidados();
+        },
+        error: (err) => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Hubo un problema al subir el archivo',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Intentar de nuevo'
+          });
+          console.error(err);
+        }
+      });
+    }
   }
-}
 
   eliminarPendiente(nombreArchivo: string) {
     this.usuarioService.eliminarPendiente(this.correoUsuario, nombreArchivo).subscribe({

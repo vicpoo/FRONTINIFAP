@@ -6,12 +6,10 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UsuarioRegistradoService {
-  private apiUrl = 'http://98.86.26.9:8001'; // Ajusta si usas otro host o puerto
+  private apiUrl = 'http://98.86.26.9:8001'; 
 
   constructor(private http: HttpClient) {}
 
-  // 1. Subir archivo Excel de análisis químicos
-  // 1. Subir archivo Excel de análisis químicos
 uploadExcel(file: File, correoUsuario: string): Observable<any> {
   const formData = new FormData();
   formData.append('file', file);                     // Archivo Excel
