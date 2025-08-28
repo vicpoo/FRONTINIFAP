@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -10,35 +10,63 @@ export class UsuarioRegistradoService {
 
   constructor(private http: HttpClient) {}
 
-uploadExcel(file: File, correoUsuario: string): Observable<any> {
-  const formData = new FormData();
-  formData.append('file', file);                     // Archivo Excel
-  formData.append('correo_usuario', correoUsuario);  // Correo del usuario
-  formData.append('nombre_archivo', file.name);      // Nombre del archivo requerido por backend
+  // ----------------------------
+  // MÉTODOS PARA ANÁLISIS QUÍMICOS
+  // ----------------------------
 
-  return this.http.post(`${this.apiUrl}/analisis-quimicos/upload-excel/`, formData);
-}
+  uploadExcel(file: File, correoUsuario: string): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('correo_usuario', correoUsuario);
+    formData.append('nombre_archivo', file.name);
+    return this.http.post(`${this.apiUrl}/analisis-quimicos/upload-excel/`, formData);
+  }
 
-
-  // 2. Obtener archivos pendientes
   getPendientes(correoUsuario: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/analisis-quimicos-validados/usuario/${correoUsuario}/pendientes/`);
   }
 
-  // 3. Obtener archivos validados
   getValidados(correoUsuario: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/analisis-quimicos-validados/usuario/${correoUsuario}/validados/`);
   }
 
-  // 4. Verificar o marcar como recibido un comentario inválido
   verificarComentario(correoUsuario: string, accion: 'verificar' | 'recibido'): Observable<any> {
     const body = { correo_usuario: correoUsuario, accion: accion };
     return this.http.post(`${this.apiUrl}/analisis-quimicos/verificar-comentario-invalido/`, body);
   }
 
-  // 5. Eliminar un archivo pendiente
   eliminarPendiente(correoUsuario: string, nombreArchivo: string): Observable<any> {
     const body = { nombre_archivo: nombreArchivo };
     return this.http.post(`${this.apiUrl}/analisis-quimicos-validados/usuario/${correoUsuario}/pendientes/archivo/`, body);
   }
+
+  getComentariosInvalidos(correoUsuario: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analisis-quimicos/obtener-comentario-invalido/?correo_usuario=${correoUsuario}`);
+  }
+
+  // ----------------------------
+  // MÉTODOS PARA ANÁLISIS DE SUELOS
+  // ----------------------------
+
+  /** 1️⃣ Subir Excel de análisis de suelos (usuario normal) */
+  uploadExcelSuelo(file: File, correoUsuario: string): Observable<any> {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('correo_usuario', correoUsuario);
+  formData.append('nombre_archivo', file.name);
+  return this.http.post(`${this.apiUrl}/analisis-suelo/upload-excel/`, formData);
+}
+
+getPendientesSuelo(correoUsuario: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/analisis-suelo-pendientes/pendientes-por-usuario-archivo`);
+}
+
+getValidadosSuelo(correoUsuario: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/analisis-suelo-validados/usuario/${correoUsuario}/validados/`);
+}
+
+getComentariosInvalidosSuelo(correoUsuario: string): Observable<any> {
+  return this.http.get(`${this.apiUrl}/analisis-suelo/obtener-comentario-invalido/?correo_usuario=${correoUsuario}`);
+}
+
 }

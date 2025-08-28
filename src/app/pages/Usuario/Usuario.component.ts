@@ -21,9 +21,7 @@ export class UsuarioComponent implements OnInit {
   archivoExcel: File | null = null;
   nombreArchivo: string = '';
   mostrarModal: boolean = false;
-  comentarioInvalido: string | null = null;
-  comentarioRecibido: boolean = false;
-
+  tipoAnalisis: 'quimico' | 'suelo' = 'quimico';
 
   constructor(
     private usuarioService: UsuarioRegistradoService,
@@ -50,84 +48,119 @@ export class UsuarioComponent implements OnInit {
     this.nombreArchivo = '';
   }
 
+  /** Cambiar filtro (pendiente, validado, rechazado) */
   setFiltro(f: 'pendiente' | 'validado' | 'rechazado') {
     this.filtro = f;
     this.archivos = [];
-
-    if (f === 'pendiente') {
-      this.cargarPendientes();
-    } else if (f === 'validado') {
-      this.cargarValidados();
-    } else if (f === 'rechazado') {
-      this.verificarComentario();
-    }
+    this.cargarArchivos();
   }
 
+  /** Filtrado dinámico por estatus y tipo de análisis */
   get archivosFiltrados() {
-    return this.archivos.filter(a => a.estatus === this.filtro);
+    return this.archivos.filter(
+      a => a.estatus === this.filtro && a.tipo === this.tipoAnalisis
+    );
   }
 
   irALogin(): void {
     this.router.navigate(['/login']);
   }
 
+  /** Carga dinámica según el filtro actual */
+  cargarArchivos() {
+    if (this.filtro === 'pendiente') {
+      this.cargarPendientes();
+    } else if (this.filtro === 'validado') {
+      this.cargarValidados();
+    } else if (this.filtro === 'rechazado') {
+      this.cargarComentariosInvalidos();
+    }
+  }
+
   cargarPendientes() {
+    this.archivos = [];
+
+    // 1. Pendientes Químicos
     this.usuarioService.getPendientes(this.correoUsuario).subscribe({
       next: (res) => {
-        const pendientes = res.archivos_pendientes?.map((a: any) => ({
+        const pendientesQuimicos = res.archivos_pendientes?.map((a: any) => ({
           nombre: a.nombre_archivo,
-          tipo: 'EXCEL',
+          tipo: 'quimico',
           fecha: a.fecha_primer_registro,
           estatus: 'pendiente'
         })) || [];
-        this.archivos = [...this.archivos, ...pendientes];
+        this.archivos = [...this.archivos, ...pendientesQuimicos];
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error pendientes químicos:', err)
+    });
+
+    // 2. Pendientes Suelo
+    this.usuarioService.getPendientesSuelo(this.correoUsuario).subscribe({
+      next: (res) => {
+        const pendientesSuelo = res.archivos_pendientes?.map((a: any) => ({
+          nombre: a.nombre_archivo,
+          tipo: 'suelo',
+          fecha: a.fecha_primer_registro,
+          estatus: 'pendiente'
+        })) || [];
+        this.archivos = [...this.archivos, ...pendientesSuelo];
+      },
+      error: (err) => console.error('Error pendientes suelo:', err)
     });
   }
 
   cargarValidados() {
+    this.archivos = [];
+
+    // Validados Químicos
     this.usuarioService.getValidados(this.correoUsuario).subscribe({
       next: (res) => {
-        const validados = res.archivos_validados?.map((a: any) => ({
+        const validadosQuimicos = res.archivos_validados?.map((a: any) => ({
           nombre: a.nombre_archivo,
-          tipo: 'EXCEL',
+          tipo: 'quimico',
           fecha: a.fecha_primer_registro,
           estatus: 'validado'
         })) || [];
-        this.archivos = [...this.archivos, ...validados];
+        this.archivos = [...this.archivos, ...validadosQuimicos];
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error('Error validados químicos:', err)
+    });
+
+    // Validados Suelo
+    this.usuarioService.getValidadosSuelo(this.correoUsuario).subscribe({
+      next: (res) => {
+        const validadosSuelo = res.archivos_validados?.map((a: any) => ({
+          nombre: a.nombre_archivo,
+          tipo: 'suelo',
+          fecha: a.fecha_primer_registro,
+          estatus: 'validado'
+        })) || [];
+        this.archivos = [...this.archivos, ...validadosSuelo];
+      },
+      error: (err) => console.error('Error validados suelo:', err)
     });
   }
 
-  verificarComentario() {
-    this.usuarioService.verificarComentario(this.correoUsuario, 'verificar').subscribe({
+  cargarComentariosInvalidos() {
+    this.usuarioService.getComentariosInvalidos(this.correoUsuario).subscribe({
       next: (res) => {
-        if (res.comentario_invalido) {
-          this.comentarioInvalido = res.comentario_invalido;
-          this.archivos.push({
-            nombre: 'Archivo con comentario',
-            tipo: 'EXCEL',
-            fecha: new Date().toISOString().split('T')[0],
-            estatus: 'rechazado',
-            comentario: res.comentario_invalido
-          });
-        } else {
-          console.log('No hay comentarios inválidos');
-        }
+        console.log('Respuesta del backend:', res);
+
+        const rechazados = res.registros_detalles?.map((registro: any) => ({
+          nombre: registro.nombre_archivo || 'Archivo desconocido',
+          tipo: 'suelo', // 👈 aquí puedes ajustar si backend diferencia químicos/suelo
+          fecha: registro.fecha || new Date().toISOString().split('T')[0],
+          estatus: 'rechazado',
+          comentario: registro.observacion || 'Sin comentario'
+        })) || [];
+
+        this.archivos = [...rechazados];
       },
       error: (err) => {
-        if (err.status === 422) {
-          console.log('Usuario sin comentarios inválidos');
-        } else {
-          console.error(err);
-        }
+        console.error('Error al obtener comentarios inválidos:', err);
       }
     });
   }
-
-  
 
   onFileSelected(event: any) {
     this.archivoExcel = event.target.files[0];
@@ -137,33 +170,28 @@ export class UsuarioComponent implements OnInit {
   }
 
   subirArchivo() {
-    if (this.archivoExcel) {
-      this.usuarioService.uploadExcel(this.archivoExcel, this.correoUsuario).subscribe({
-        next: (res) => {
-          Swal.fire({
-            title: '¡Éxito!',
-            text: 'El archivo se subió correctamente',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'Aceptar'
-          });
-          this.cerrarModal();
-          this.archivos = [];
-          this.cargarPendientes();
-          this.cargarValidados();
-        },
-        error: (err) => {
-          Swal.fire({
-            title: 'Error',
-            text: 'Hubo un problema al subir el archivo',
-            icon: 'error',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Intentar de nuevo'
-          });
-          console.error(err);
-        }
-      });
+    if (!this.archivoExcel) {
+      Swal.fire('Error', 'Debe seleccionar un archivo para subir', 'error');
+      return;
     }
+
+    const uploadObservable =
+      this.tipoAnalisis === 'quimico'
+        ? this.usuarioService.uploadExcel(this.archivoExcel, this.correoUsuario)
+        : this.usuarioService.uploadExcelSuelo(this.archivoExcel, this.correoUsuario);
+
+    uploadObservable.subscribe({
+      next: () => {
+        Swal.fire('¡Éxito!', 'El archivo se subió correctamente', 'success');
+        this.cerrarModal();
+        this.archivos = [];
+        this.cargarArchivos(); // 👈 vuelve a cargar según filtro y tipo
+      },
+      error: (err) => {
+        Swal.fire('Error', 'Hubo un problema al subir el archivo', 'error');
+        console.error(err);
+      },
+    });
   }
 
   eliminarPendiente(nombreArchivo: string) {

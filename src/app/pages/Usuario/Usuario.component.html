@@ -33,7 +33,8 @@
       </ul>
     </nav>
     <div class="p-6 border-t border-green-500">
-      <button (click)="irALogin()" class="flex items-center justify-center w-full px-5 py-3 text-xl font-bold bg-gray-600 hover:bg-red-700 rounded-lg transition">
+      <button (click)="irALogin()" 
+              class="flex items-center justify-center w-full px-5 py-3 text-xl font-bold bg-gray-600 hover:bg-red-700 rounded-lg transition">
         <img src="assets/salir.png" alt="Regresar" class="h-8 w-8 mr-3">
         Regresar
       </button> 
@@ -42,71 +43,85 @@
 
   <!-- Main content -->
   <main class="flex-1 flex flex-col bg-gray-50">
+    <!-- Header -->
     <header class="flex justify-between items-center p-6 border-b bg-white shadow">
-      <div></div>
       <div class="text-xl font-semibold">Bienvenido</div>
       <div class="text-xl font-bold uppercase">{{ correoUsuario }}</div>
     </header>
 
+    <!-- Contenido principal -->
     <div class="p-8 flex-1 overflow-auto">
-      <!-- Botón para abrir modal de carga -->
+
+      <!-- Selector de tipo de análisis -->
+      <div class="flex justify-end mb-6">
+        <label class="mr-3 text-lg font-semibold text-gray-700">Tipo de análisis:</label>
+        <select [(ngModel)]="tipoAnalisis" (change)="cargarArchivos()"
+                class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
+          <option value="quimico">Análisis Químico</option>
+          <option value="suelo">Análisis de Suelo</option>
+        </select>
+      </div>
+
+      <!-- Botón para abrir modal -->
       <div class="mb-6">
         <button class="px-6 py-3 text-lg bg-green-600 text-white rounded-lg hover:bg-green-700"
                 (click)="mostrarModal = true">
           Subir Nuevo Archivo
         </button>
-        
       </div>
 
-<!-- Modal de carga de archivo -->
-<div *ngIf="mostrarModal" class="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white rounded-xl shadow-2xl w-[420px] p-6">
-    <h2 class="text-2xl font-bold mb-5 text-center text-green-700">Subir Archivo</h2>
+      <!-- Modal de carga -->
+      <div *ngIf="mostrarModal" class="fixed inset-0 backdrop-blur-sm bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl w-[420px] p-6">
+          <h2 class="text-2xl font-bold mb-5 text-center text-green-700">Subir Archivo</h2>
 
-    <form>
-      <!-- Archivo -->
-      <label class="block mb-3 font-semibold text-gray-700">Seleccionar archivo</label>
-      <div class="relative mb-5">
-        <input 
-          type="file" 
-          id="archivoInput"
-          (change)="onFileSelected($event)"
-          class="hidden" />
-        <label for="archivoInput"
-          class="flex items-center justify-center w-full px-4 py-3 border border-green-500 text-green-700 rounded-lg cursor-pointer hover:bg-green-50 transition">
-          <span *ngIf="!archivoExcel">Elegir archivo...</span>
-          <span *ngIf="archivoExcel">{{ archivoExcel.name }}</span>
-        </label>
+          <form>
+            <!-- Tipo de análisis -->
+            <label class="block mb-3 font-semibold text-gray-700">Tipo de Análisis</label>
+            <select [(ngModel)]="tipoAnalisis" name="tipoAnalisis"
+                    class="w-full border rounded px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-green-500">
+              <option value="quimico">Análisis Químico</option>
+              <option value="suelo">Análisis de Suelo</option>
+            </select>
+
+            <!-- Archivo -->
+            <label class="block mb-3 font-semibold text-gray-700">Seleccionar archivo</label>
+            <div class="relative mb-5">
+              <input type="file" id="archivoInput" (change)="onFileSelected($event)" class="hidden" />
+              <label for="archivoInput"
+                     class="flex items-center justify-center w-full px-4 py-3 border border-green-500 text-green-700 rounded-lg cursor-pointer hover:bg-green-50 transition">
+                <span *ngIf="!archivoExcel">Elegir archivo...</span>
+                <span *ngIf="archivoExcel">{{ archivoExcel.name }}</span>
+              </label>
+            </div>
+
+            <!-- Correo -->
+            <label class="block mb-3 font-semibold text-gray-700">Correo del Usuario</label>
+            <input type="text" [value]="correoUsuario" readonly
+                   class="w-full border rounded px-3 py-2 mb-5 bg-gray-100 text-gray-600">
+
+            <!-- Nombre del archivo -->
+            <label class="block mb-3 font-semibold text-gray-700">Nombre del Archivo</label>
+            <input type="text" [(ngModel)]="nombreArchivo" name="nombreArchivo"
+                   class="w-full border rounded px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-green-500">
+
+            <!-- Botones -->
+            <div class="flex justify-between mt-6">
+              <button type="button" (click)="subirArchivo()"
+                      class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 shadow">
+                Aceptar
+              </button>
+              <button type="button" (click)="cerrarModal()"
+                      class="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 shadow">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
-      <!-- Correo (rellenado automático) -->
-      <label class="block mb-3 font-semibold text-gray-700">Correo del Usuario</label>
-      <input type="text" [value]="correoUsuario" readonly 
-        class="w-full border rounded px-3 py-2 mb-5 bg-gray-100 text-gray-600">
-
-      <!-- Nombre del archivo -->
-      <label class="block mb-3 font-semibold text-gray-700">Nombre del Archivo</label>
-      <input type="text" [(ngModel)]="nombreArchivo" name="nombreArchivo" 
-        class="w-full border rounded px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-green-500">
-
-      <!-- Botones -->
-      <div class="flex justify-between mt-6">
-        <button type="button" (click)="subirArchivo()"
-                class="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 shadow">
-          Aceptar
-        </button>
-        <button type="button" (click)="cerrarModal()"
-                class="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 shadow">
-          Cancelar
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-      <!-- Tabla -->
-      <div class="overflow-x-auto">
+      <!-- Tabla dinámica -->
+      <div class="overflow-x-auto mt-8">
         <table class="w-full border-collapse bg-white rounded-lg shadow text-lg">
           <thead>
             <tr class="bg-green-700 text-white">
@@ -121,7 +136,7 @@
           <tbody>
             <tr *ngFor="let archivo of archivosFiltrados" class="odd:bg-green-50 even:bg-green-100 border-b">
               <td class="px-5 py-3">{{ archivo.nombre }}</td>
-              <td class="px-5 py-3">{{ archivo.tipo }}</td>
+              <td class="px-5 py-3">{{ tipoAnalisis === 'quimico' ? 'Químico' : 'Suelo' }}</td>
               <td class="px-5 py-3">{{ archivo.fecha }}</td>
               <td class="px-5 py-3 capitalize">{{ archivo.estatus }}</td>
 

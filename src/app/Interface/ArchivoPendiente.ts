@@ -1,4 +1,4 @@
-interface ArchivoPendiente {
+ export interface ArchivoPendiente {
   usuario: string;
   correo: string;
   nombre: string;
