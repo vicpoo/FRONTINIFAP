@@ -54,7 +54,7 @@ export class UsuarioRegistradoService {
   formData.append('file', file);
   formData.append('correo_usuario', correoUsuario);
   formData.append('nombre_archivo', file.name);
-  return this.http.post(`${this.apiUrl}/analisis-suelo/upload-excel/`, formData);
+  return this.http.post(`${this.apiUrl}/analisis-suelos-pendientes/upload-excel`, formData);
 }
 
 getPendientesSuelo(correoUsuario: string): Observable<any> {
