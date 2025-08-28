@@ -18,6 +18,7 @@ export class UsuarioComponent implements OnInit {
   filtro: 'pendiente' | 'validado' | 'rechazado' = 'pendiente';
 
   correoUsuario = '';
+  userId: number | null = null;   // 👈 Nuevo campo para manejar ID
   archivoExcel: File | null = null;
   nombreArchivo: string = '';
   mostrarModal: boolean = false;
@@ -34,7 +35,9 @@ export class UsuarioComponent implements OnInit {
 
     if (user) {
       this.correoUsuario = user.correo;
+      this.userId = user.id;  // 👈 Guardamos el ID
       console.log('Correo del usuario logueado:', this.correoUsuario);
+      console.log('ID del usuario logueado:', this.userId);
       this.setFiltro('pendiente');
     } else {
       console.warn('No se encontró información del usuario, redirigiendo al login...');
@@ -48,14 +51,12 @@ export class UsuarioComponent implements OnInit {
     this.nombreArchivo = '';
   }
 
-  /** Cambiar filtro (pendiente, validado, rechazado) */
   setFiltro(f: 'pendiente' | 'validado' | 'rechazado') {
     this.filtro = f;
     this.archivos = [];
     this.cargarArchivos();
   }
 
-  /** Filtrado dinámico por estatus y tipo de análisis */
   get archivosFiltrados() {
     return this.archivos.filter(
       a => a.estatus === this.filtro && a.tipo === this.tipoAnalisis
@@ -66,7 +67,6 @@ export class UsuarioComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  /** Carga dinámica según el filtro actual */
   cargarArchivos() {
     if (this.filtro === 'pendiente') {
       this.cargarPendientes();
@@ -80,7 +80,7 @@ export class UsuarioComponent implements OnInit {
   cargarPendientes() {
     this.archivos = [];
 
-    // 1. Pendientes Químicos
+    // Pendientes Químicos (correo)
     this.usuarioService.getPendientes(this.correoUsuario).subscribe({
       next: (res) => {
         const pendientesQuimicos = res.archivos_pendientes?.map((a: any) => ({
@@ -94,25 +94,27 @@ export class UsuarioComponent implements OnInit {
       error: (err) => console.error('Error pendientes químicos:', err)
     });
 
-    // 2. Pendientes Suelo
-    this.usuarioService.getPendientesSuelo(this.correoUsuario).subscribe({
-      next: (res) => {
-        const pendientesSuelo = res.archivos_pendientes?.map((a: any) => ({
-          nombre: a.nombre_archivo,
-          tipo: 'suelo',
-          fecha: a.fecha_primer_registro,
-          estatus: 'pendiente'
-        })) || [];
-        this.archivos = [...this.archivos, ...pendientesSuelo];
-      },
-      error: (err) => console.error('Error pendientes suelo:', err)
-    });
+    // Pendientes Suelo (userId)
+    if (this.userId) {
+      this.usuarioService.getPendientesSuelo(this.userId).subscribe({
+        next: (res) => {
+          const pendientesSuelo = res.archivos_pendientes?.map((a: any) => ({
+            nombre: a.nombre_archivo,
+            tipo: 'suelo',
+            fecha: a.fecha_primer_registro,
+            estatus: 'pendiente'
+          })) || [];
+          this.archivos = [...this.archivos, ...pendientesSuelo];
+        },
+        error: (err) => console.error('Error pendientes suelo:', err)
+      });
+    }
   }
 
   cargarValidados() {
     this.archivos = [];
 
-    // Validados Químicos
+    // Validados Químicos (correo)
     this.usuarioService.getValidados(this.correoUsuario).subscribe({
       next: (res) => {
         const validadosQuimicos = res.archivos_validados?.map((a: any) => ({
@@ -126,40 +128,44 @@ export class UsuarioComponent implements OnInit {
       error: (err) => console.error('Error validados químicos:', err)
     });
 
-    // Validados Suelo
-    this.usuarioService.getValidadosSuelo(this.correoUsuario).subscribe({
-      next: (res) => {
-        const validadosSuelo = res.archivos_validados?.map((a: any) => ({
-          nombre: a.nombre_archivo,
-          tipo: 'suelo',
-          fecha: a.fecha_primer_registro,
-          estatus: 'validado'
-        })) || [];
-        this.archivos = [...this.archivos, ...validadosSuelo];
-      },
-      error: (err) => console.error('Error validados suelo:', err)
-    });
+    // Validados Suelo (userId)
+    if (this.userId) {
+      this.usuarioService.getValidadosSuelo(this.userId).subscribe({
+        next: (res) => {
+          const validadosSuelo = res.archivos_validados?.map((a: any) => ({
+            nombre: a.nombre_archivo,
+            tipo: 'suelo',
+            fecha: a.fecha_primer_registro,
+            estatus: 'validado'
+          })) || [];
+          this.archivos = [...this.archivos, ...validadosSuelo];
+        },
+        error: (err) => console.error('Error validados suelo:', err)
+      });
+    }
   }
 
   cargarComentariosInvalidos() {
-    this.usuarioService.getComentariosInvalidos(this.correoUsuario).subscribe({
-      next: (res) => {
-        console.log('Respuesta del backend:', res);
+    if (this.userId) {
+      this.usuarioService.getComentariosInvalidos(this.correoUsuario).subscribe({
+        next: (res) => {
+          console.log('Respuesta del backend:', res);
 
-        const rechazados = res.registros_detalles?.map((registro: any) => ({
-          nombre: registro.nombre_archivo || 'Archivo desconocido',
-          tipo: 'suelo', // 👈 aquí puedes ajustar si backend diferencia químicos/suelo
-          fecha: registro.fecha || new Date().toISOString().split('T')[0],
-          estatus: 'rechazado',
-          comentario: registro.observacion || 'Sin comentario'
-        })) || [];
+          const rechazados = res.registros_detalles?.map((registro: any) => ({
+            nombre: registro.nombre_archivo || 'Archivo desconocido',
+            tipo: 'suelo',
+            fecha: registro.fecha || new Date().toISOString().split('T')[0],
+            estatus: 'rechazado',
+            comentario: registro.observacion || 'Sin comentario'
+          })) || [];
 
-        this.archivos = [...rechazados];
-      },
-      error: (err) => {
-        console.error('Error al obtener comentarios inválidos:', err);
-      }
-    });
+          this.archivos = [...rechazados];
+        },
+        error: (err) => {
+          console.error('Error al obtener comentarios inválidos:', err);
+        }
+      });
+    }
   }
 
   onFileSelected(event: any) {
@@ -178,14 +184,14 @@ export class UsuarioComponent implements OnInit {
     const uploadObservable =
       this.tipoAnalisis === 'quimico'
         ? this.usuarioService.uploadExcel(this.archivoExcel, this.correoUsuario)
-        : this.usuarioService.uploadExcelSuelo(this.archivoExcel, this.correoUsuario);
+        : this.usuarioService.uploadExcelSuelo(this.archivoExcel, this.userId!); // 👈 ahora con userId
 
     uploadObservable.subscribe({
       next: () => {
         Swal.fire('¡Éxito!', 'El archivo se subió correctamente', 'success');
         this.cerrarModal();
         this.archivos = [];
-        this.cargarArchivos(); // 👈 vuelve a cargar según filtro y tipo
+        this.cargarArchivos();
       },
       error: (err) => {
         Swal.fire('Error', 'Hubo un problema al subir el archivo', 'error');
@@ -195,6 +201,7 @@ export class UsuarioComponent implements OnInit {
   }
 
   eliminarPendiente(nombreArchivo: string) {
+    // 👀 Aquí supongo que solo aplica a químicos (correo), si necesitas también para suelo dime
     this.usuarioService.eliminarPendiente(this.correoUsuario, nombreArchivo).subscribe({
       next: (res) => {
         console.log('Pendiente eliminado', res);

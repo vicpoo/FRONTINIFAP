@@ -19,6 +19,7 @@ export class UsuarioRegistradoService {
     formData.append('file', file);
     formData.append('correo_usuario', correoUsuario);
     formData.append('nombre_archivo', file.name);
+
     return this.http.post(`${this.apiUrl}/analisis-quimicos/upload-excel/`, formData);
   }
 
@@ -48,25 +49,28 @@ export class UsuarioRegistradoService {
   // MÉTODOS PARA ANÁLISIS DE SUELOS
   // ----------------------------
 
-  /** 1️⃣ Subir Excel de análisis de suelos (usuario normal) */
-  uploadExcelSuelo(file: File, correoUsuario: string): Observable<any> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('correo_usuario', correoUsuario);
-  formData.append('nombre_archivo', file.name);
-  return this.http.post(`${this.apiUrl}/analisis-suelos-pendientes/upload-excel`, formData);
-}
+  /** Subir Excel de análisis de suelos */
+  uploadExcelSuelo(file: File, userId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('user_id', String(userId));
+    formData.append('nombre_archivo', file.name);
 
-getPendientesSuelo(correoUsuario: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/analisis-suelo-pendientes/pendientes-por-usuario-archivo`);
-}
+    return this.http.post(`${this.apiUrl}/analisis-suelos-pendientes/upload-excel/`, formData);
+  }
 
-getValidadosSuelo(correoUsuario: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/analisis-suelo-validados/usuario/${correoUsuario}/validados/`);
-}
+  /** Obtener pendientes de suelos */
+  getPendientesSuelo(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analisis-suelos-pendientes/usuario/${userId}/pendientes/`);
+  }
 
-getComentariosInvalidosSuelo(correoUsuario: string): Observable<any> {
-  return this.http.get(`${this.apiUrl}/analisis-suelo/obtener-comentario-invalido/?correo_usuario=${correoUsuario}`);
-}
+  /** Obtener validados de suelos */
+  getValidadosSuelo(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analisis-suelos-validados/usuario/${userId}/validados/`);
+  }
 
+  /** Obtener comentarios inválidos de suelos */
+  getComentariosInvalidosSuelo(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analisis-suelos/obtener-comentario-invalido/?user_id=${userId}`);
+  }
 }
