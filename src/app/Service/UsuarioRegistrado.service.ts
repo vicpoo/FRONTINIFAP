@@ -51,13 +51,15 @@ export class UsuarioRegistradoService {
 
   /** Subir Excel de análisis de suelos */
   uploadExcelSuelo(file: File, userId: number): Observable<any> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('user_id', String(userId));
-    formData.append('nombre_archivo', file.name);
+  const formData = new FormData();
+  formData.append('file', file);
 
-    return this.http.post(`${this.apiUrl}/analisis-suelos-pendientes/upload-excel/`, formData);
-  }
+  return this.http.post(
+    `${this.apiUrl}/analisis-suelos-pendientes/upload-excel?user_id=${userId}&nombre_archivo=${encodeURIComponent(file.name)}`,
+    formData
+  );
+}
+
 
   /** Obtener pendientes de suelos */
   getPendientesSuelo(userId: number): Observable<any> {
