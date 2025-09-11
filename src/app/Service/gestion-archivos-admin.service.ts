@@ -53,7 +53,7 @@ export class GestionArchivosAdminService {
   // ========================
 
   getUsuariosConPendientesSuelo(): Observable<any> {
-    const url = `${this.baseUrl}/analisis-suelos-pendientes/usuarios-con-pendientes`;
+    const url = `${this.baseUrl}/analisis-suelos-pendientes/archivos-con-pendientes`;
     return this.http.get<any>(url);
   }
 
@@ -71,11 +71,12 @@ export class GestionArchivosAdminService {
     return this.http.get(url, { responseType: 'blob' });
   }
 
-  validarArchivoSuelo(correoUsuario: string, nombreArchivo: string, comentario: string): Observable<any> {
-    const url = `${this.baseUrl}/api/v1/suelos-validados/validar-por-correo`;
-    const body = { nombre_archivo: nombreArchivo, comentario_validacion: comentario };
-    return this.http.post<any>(url, body);
-  }
+  validarArchivoSuelo(correoUsuario: string, nombreArchivo: string): Observable<any> {
+  const url = `${this.baseUrl}/api/v1/suelos-validados/validar-por-correo`;
+  const body = { correo_usuario: correoUsuario, nombre_archivo: nombreArchivo };
+  return this.http.post<any>(url, body);
+}
+
 
   rechazarArchivoSuelo(adminId: number, correoUsuario: string, comentarioInvalido: string): Observable<any> {
     const url = `${this.baseUrl}/analisis-suelos-pendientes/comentario-invalido`;

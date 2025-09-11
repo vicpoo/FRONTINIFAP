@@ -69,26 +69,26 @@ export class GestionArchivosComponent implements OnInit {
     });
 
     // --- Analisis Suelos ---
-    this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
-      next: (data) => {
-        const usuarios = data?.usuarios || [];
-        this.archivosSuelosOriginal = usuarios.flatMap((usuario: any) =>
-          (usuario.nombres_archivos || []).map((archivo: string) => ({
-            usuario: usuario.nombre_usuario,
-            correo: usuario.correo,
-            nombre: archivo,
-            fecha: usuario.fecha_creacion,
-            estatus: usuario.estatus?.toUpperCase() || 'PENDIENTE',
-            id_user: usuario.user_id
-          }))
-        );
-        this.archivosSuelos = [...this.archivosSuelosOriginal];
-        this.actualizarListaEmpleados();
-      },
-      error: (err) => {
-        console.error('Error al obtener usuarios pendientes (suelos):', err);
-      }
-    });
+    // --- Analisis Suelos ---
+this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
+  next: (data) => {
+    const archivos = data?.archivos || [];
+    this.archivosSuelosOriginal = archivos.map((archivo: any) => ({
+      usuario: archivo.nombre_usuario,
+      correo: archivo.correo || '', // Si no viene en la respuesta, asigna vacío
+      nombre: archivo.nombre_archivo,
+      fecha: archivo.fecha,
+      estatus: archivo.estatus?.toUpperCase() || 'PENDIENTE',
+      id_user: archivo.user_id || null // Igual, si backend no lo manda, pon null
+    }));
+    this.archivosSuelos = [...this.archivosSuelosOriginal];
+    this.actualizarListaEmpleados();
+  },
+  error: (err) => {
+    console.error('Error al obtener usuarios pendientes (suelos):', err);
+  }
+});
+
   }
 
   actualizarListaEmpleados(): void {
@@ -179,13 +179,14 @@ export class GestionArchivosComponent implements OnInit {
     const comentario = this.comentario;
 
     const request$ =
-      this.accionSeleccionada === 'validar'
-        ? (this.tipoSeleccionado === 'quimicos'
-            ? this.gestionArchivosService.validarArchivo(correo, archivo, comentario)
-            : this.gestionArchivosService.validarArchivoSuelo(correo, archivo, comentario))
-        : (this.tipoSeleccionado === 'quimicos'
-            ? this.gestionArchivosService.rechazarArchivo(1, correo, comentario)
-            : this.gestionArchivosService.rechazarArchivoSuelo(1, correo, comentario));
+  this.accionSeleccionada === 'validar'
+    ? (this.tipoSeleccionado === 'quimicos'
+        ? this.gestionArchivosService.validarArchivo(correo, archivo, comentario)
+        : this.gestionArchivosService.validarArchivoSuelo(correo, archivo)) // <-- Ajustado aquí
+    : (this.tipoSeleccionado === 'quimicos'
+        ? this.gestionArchivosService.rechazarArchivo(1, correo, comentario)
+        : this.gestionArchivosService.rechazarArchivoSuelo(1, correo, comentario));
+
 
     request$.subscribe({
       next: (resp) => {

@@ -63,7 +63,7 @@ export class UsuarioRegistradoService {
 
   /** Obtener pendientes de suelos */
   getPendientesSuelo(userId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/analisis-suelos-pendientes/usuario/${userId}/pendientes/`);
+    return this.http.get(`${this.apiUrl}/analisis-suelos-pendientes/pendientes-por-usuario-archivo`);
   }
 
   /** Obtener validados de suelos */
