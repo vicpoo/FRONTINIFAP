@@ -11,6 +11,7 @@ import { RecomendacionesNutricionalesComponent } from './components/organims/Vis
 import { AuthGuard } from './auth/auth.guard';
 import { AdminGuard } from './auth/admin.guard';
 import { PortadaComponent } from './pages/Portada/Portada.component';
+import { ClasificacionComponent } from './components/organims/Vistas-Admin/Clasificacion-resultados/Clasificacion.component';
 
 export const routes: Routes = [
   { path: '', component: PortadaComponent},
@@ -35,6 +36,7 @@ export const routes: Routes = [
       { path: 'lista-usuarios', component: ListaUsuariosComponent },
       { path: 'Gestion-Archivos', component: GestionArchivosComponent },
       { path: 'Recomendaciones', component: RecomendacionesComponent },
+      { path: 'Clasificacion', component: ClasificacionComponent},
       { path: '', redirectTo: 'lista-usuarios', pathMatch: 'full' }
     ]
   },

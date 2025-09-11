@@ -15,7 +15,7 @@ export interface Municipio {
   providedIn: 'root'
 })
 export class MunicipiosService {
-  private apiUrl = 'http://50.16.232.175:8000/municipios/';
+  private apiUrl = 'http://3.224.87.135:8000/municipios/';
 
   constructor(private http: HttpClient) { }
 

@@ -2,6 +2,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
+import { Icon } from 'ol/style';
 
 @Component({
   selector: 'app-side-nav-admin',
@@ -14,7 +15,8 @@ export class SideNavAdminComponent {
     { icon: 'assets/subirArchivo.png', label: 'GESTION DE ARCHIVOS' },
     { icon: 'assets/usuarios.png', label: 'LISTA DE USUARIOS' },
     { icon: 'assets/recomendaciones.png', label: 'RECOMENDACIONES NUTRICIONALES' },
-    { icon: 'assets/salir.png', label: 'REGRESAR' }
+    { icon: 'assets/Clasificacion.png', label: 'CLASIFICACION'},
+    { icon: 'assets/salir.png', label: 'REGRESAR' },
   ];
 
   constructor(private router: Router) {}
@@ -32,6 +34,9 @@ export class SideNavAdminComponent {
         break;
       case 'RECOMENDACIONES NUTRICIONALES':
         this.router.navigate(['admin/Recomendaciones']);
+        break;
+      case 'CLASIFICACION':
+        this.router.navigate(['admin/Clasificacion']);
         break;
     }
   }

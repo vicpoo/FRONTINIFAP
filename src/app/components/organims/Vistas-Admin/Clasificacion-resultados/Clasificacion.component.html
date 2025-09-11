@@ -1,0 +1,229 @@
+<!-- Clasificacion.component.html -->
+<div class="p-6 space-y-6">
+
+  <!-- Botón agregar -->
+  <h1 class="text-3xl font-bold px-4 py-2 inline-block">
+    CLASIFICACIÓN DE RESULTADOS
+  </h1>
+  <div class="flex justify-start">
+    <button 
+      class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+      (click)="abrirModal()">
+      AGREGAR NUEVA CLASIFICACIÓN
+    </button>
+  </div>
+
+  <!-- Encabezado -->
+  <h2 class="text-2xl font-bold">CLASIFICACIONES CREADAS</h2>
+
+  <!-- Controles de orden y búsqueda -->
+  <div class="flex gap-4 items-center">
+    <select [(ngModel)]="orden" (change)="aplicarFiltro()"
+      class="border px-3 py-2 rounded bg-white">
+      <option value="recientes">ORDEN: MÁS RECIENTES</option>
+      <option value="antiguos">ORDEN: MÁS ANTIGUOS</option>
+    </select>
+
+    <input [(ngModel)]="filtroMunicipio" (input)="aplicarFiltro()"
+      type="text" placeholder="BUSCAR POR MUNICIPIO, TIPO DE ANÁLISIS O RESULTADO"
+      class="flex-1 border px-3 py-2 rounded"/>
+  </div>
+
+  <!-- Cards -->
+  <div class="space-y-6">
+    <div *ngFor="let clas of clasificacionesFiltradas"
+         class="border rounded-xl shadow bg-white overflow-hidden">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between bg-[#6A0F36] text-white px-4 py-2">
+        <img src="assets/inifap.png" alt="logo" class="h-8 w-auto"/>
+        <h3 class="font-bold text-lg text-center flex-1">
+          ID Municipio: {{ clas.municipio_id_FK }}
+        </h3>
+        <div class="flex gap-3">
+          <img src="assets/editar.png" alt="editar"
+               class="h-6 w-6 cursor-pointer hover:scale-110 transition"
+               (click)="abrirModal(clas)" />
+          <img src="assets/borrar.png" alt="borrar"
+               class="h-6 w-6 cursor-pointer hover:scale-110 transition"
+               (click)="eliminar(clas)" />
+        </div>
+      </div>
+
+      <!-- Cuerpo -->
+      <div class="p-4 text-gray-700 space-y-2">
+        <p><strong>Tipo de Análisis:</strong> {{ clas.analisis_tipo }}</p>
+        <p><strong>Fecha de Análisis:</strong> {{ formatDateForDisplay(clas.fecha_analisis) }}</p>
+        <p><strong>Resultado General:</strong> {{ clas.resultado_general }}</p>
+        <p *ngIf="clas.nutrientes_criticos"><strong>Nutrientes Críticos:</strong> {{ clas.nutrientes_criticos }}</p>
+        <p *ngIf="clas.comentario"><strong>Comentario:</strong> {{ clas.comentario }}</p>
+        <p><strong>Usuario ID:</strong> {{ clas.user_id_FK }}</p>
+        
+        <!-- Imagen -->
+        <div *ngIf="tieneImagen(clas)" class="mt-3">
+          <img [src]="getImageUrl(clas.imagen)" 
+               alt="Imagen de clasificación" 
+               class="w-32 h-32 object-cover rounded border cursor-pointer"
+               (click)="abrirModalImagen(clas.id)">
+          <p class="text-sm text-gray-500 mt-1">Click para cambiar imagen</p>
+        </div>
+        
+        <div *ngIf="!tieneImagen(clas)" class="mt-3">
+          <button 
+            class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+            (click)="abrirModalImagen(clas.id)">
+            Agregar Imagen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no hay resultados -->
+  <div *ngIf="clasificacionesFiltradas.length === 0" class="text-center py-10 text-gray-500">
+    No se encontraron clasificaciones
+  </div>
+</div>
+
+<!-- Modal para clasificación -->
+<div *ngIf="modalAbierto"
+     class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto">
+    
+    <h2 class="text-xl font-bold mb-4 text-center">
+      {{ esNuevo ? 'Agregar Clasificación de Resultados' : 'Editar Clasificación de Resultados' }}
+    </h2>
+
+    <!-- Formulario -->
+    <form class="space-y-4" (ngSubmit)="guardarClasificacion()">
+      
+      <!-- Select de municipio -->
+      <div>
+        <label class="block font-semibold mb-1">Municipio *</label>
+        <select 
+          [(ngModel)]="formClasificacion.municipio_id_FK" 
+          name="municipio_id_FK"
+          class="w-full border rounded px-3 py-2" 
+          required>
+          <option value="" disabled selected>Seleccione un municipio</option>
+          <option *ngFor="let municipio of municipios" [value]="municipio.id_municipio">
+            {{ municipio.nombre }} (ID: {{ municipio.id_municipio }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Tipo de análisis -->
+      <div>
+        <label class="block font-semibold mb-1">Tipo de Análisis *</label>
+        <select 
+          [(ngModel)]="formClasificacion.analisis_tipo" 
+          name="analisis_tipo"
+          class="w-full border rounded px-3 py-2" 
+          required>
+          <option value="" disabled selected>Seleccione el tipo de análisis</option>
+          <option *ngFor="let tipo of tiposAnalisis" [value]="tipo">
+            {{ tipo }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Fecha de análisis -->
+      <div>
+        <label class="block font-semibold mb-1">Fecha de Análisis *</label>
+        <input 
+          type="date" 
+          [(ngModel)]="formClasificacion.fecha_analisis" 
+          name="fecha_analisis"
+          class="w-full border rounded px-3 py-2" 
+          required>
+      </div>
+
+      <!-- Resultado general -->
+      <div>
+        <label class="block font-semibold mb-1">Resultado General *</label>
+        <input 
+          type="text" 
+          [(ngModel)]="formClasificacion.resultado_general" 
+          name="resultado_general"
+          class="w-full border rounded px-3 py-2" 
+          placeholder="Ej: Suelo fértil, Calidad excelente, etc."
+          required>
+      </div>
+
+      <!-- Nutrientes críticos -->
+      <div>
+        <label class="block font-semibold mb-1">Nutrientes Críticos (opcional)</label>
+        <textarea 
+          [(ngModel)]="formClasificacion.nutrientes_criticos" 
+          name="nutrientes_criticos"
+          rows="2" 
+          class="w-full border rounded px-3 py-2" 
+          placeholder="Ej: Nitrógeno bajo, Fósforo alto..."></textarea>
+      </div>
+
+      <!-- Comentario -->
+      <div>
+        <label class="block font-semibold mb-1">Comentario (opcional)</label>
+        <textarea 
+          [(ngModel)]="formClasificacion.comentario" 
+          name="comentario"
+          rows="3" 
+          class="w-full border rounded px-3 py-2" 
+          placeholder="Observaciones adicionales..."></textarea>
+      </div>
+
+      <!-- User ID (puede ser hidden si siempre es el mismo) -->
+      <input type="hidden" [(ngModel)]="formClasificacion.user_id_FK" name="user_id_FK">
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-4 pt-4">
+        <button type="button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+          (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          {{ esNuevo ? 'Crear' : 'Actualizar' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Modal para imagen -->
+<div *ngIf="modalImagenAbierto"
+     class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  
+  <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+    
+    <h2 class="text-xl font-bold mb-4 text-center">
+      Subir Imagen para Clasificación
+    </h2>
+
+    <!-- Formulario de imagen -->
+    <div class="space-y-4">
+      
+      <!-- Subir imagen -->
+      <div>
+        <label class="block font-semibold mb-1">Seleccionar Imagen *</label>
+        <input type="file" accept="image/*" (change)="onFileSelected($event)"
+          class="w-full border rounded px-3 py-2" required/>
+        <p class="text-sm text-gray-500 mt-1">Formatos: JPG, PNG, GIF, WEBP, BMP</p>
+      </div>
+
+      <!-- Botones -->
+      <div class="flex justify-end gap-4 pt-4">
+        <button type="button" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+          (click)="cerrarModal()">
+          Cancelar
+        </button>
+        <button type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          (click)="subirImagen()">
+          Subir Imagen
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

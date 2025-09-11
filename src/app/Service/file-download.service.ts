@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class FileDownloadService {
 
-  private apiUrl = 'http://50.16.232.175:8000/recomendaciones-nutricionales/';
+  private apiUrl = 'http://3.224.87.135:8000/recomendaciones-nutricionales/';
 
   constructor(private http: HttpClient) {}
 

@@ -24,7 +24,7 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class UsuariosService {
-  private apiUrl = 'http://50.16.232.175:8000/users/';
+  private apiUrl = 'http://3.224.87.135:8000/users/';
 
   constructor(private http: HttpClient) {}
 
