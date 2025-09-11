@@ -15,7 +15,6 @@ export class SideNavAdminComponent {
     { icon: 'assets/subirArchivo.png', label: 'GESTION DE ARCHIVOS' },
     { icon: 'assets/usuarios.png', label: 'LISTA DE USUARIOS' },
     { icon: 'assets/recomendaciones.png', label: 'RECOMENDACIONES NUTRICIONALES' },
-    { icon: 'assets/Clasificacion.png', label: 'CLASIFICACION'},
     { icon: 'assets/salir.png', label: 'REGRESAR' },
   ];
 
