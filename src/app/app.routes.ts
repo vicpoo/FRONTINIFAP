@@ -12,6 +12,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { AdminGuard } from './auth/admin.guard';
 import { PortadaComponent } from './pages/Portada/Portada.component';
 import { ClasificacionComponent } from './components/organims/Vistas-Admin/Clasificacion-resultados/Clasificacion.component';
+import { AnalisisComponent } from './components/organims/Vistas-Mapa/Analisis/analisis.component';
 
 export const routes: Routes = [
   { path: '', component: PortadaComponent},
@@ -21,7 +22,10 @@ export const routes: Routes = [
     path: 'nutricionales/:id', 
     component: RecomendacionesNutricionalesComponent
   },
-  
+  {
+  path: 'analisis/:id',
+  component: AnalisisComponent
+  },
   { 
     path: 'Usuario', 
     component: UsuarioComponent,

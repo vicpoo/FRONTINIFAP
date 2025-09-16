@@ -12,8 +12,7 @@ import { NgFor } from '@angular/common';
 export class SideNavMapaComponent {
   menuItems = [
     { icon: 'assets/subirArchivo.png', label: 'TODOS LOS RESULTADOS', route: 'mapa/todos-resultados' },
-    { icon: 'assets/estadisticas.png', label: 'ESTADÍSTICAS', route: 'mapa/estadisticas' },
-    { icon: 'assets/clasificacion.png', label: 'CLASIFICACIÓN', route: 'mapa/clasificacion' },
+    { icon: 'assets/estadisticas.png', label: 'ESTADÍSTICAS Y CLASIFICACIONES', route: 'analisis/:id' },
     { icon: 'assets/recomendaciones.png', label: 'NUTRICIÓN', route: 'recomendaciones/:id' },
     { icon: 'assets/salir.png', label: 'REGRESAR', route: '' }
   ];

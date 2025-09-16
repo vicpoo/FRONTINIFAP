@@ -1,10 +1,9 @@
+// recomendaciones-nutricionales.component.ts
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-
-// Importar servicios
 import { RecomendacionesNutricionalesService, RecomendacionNutricional } from '../../../../Service/recomendaciones-nutricionales.service';
 import { MunicipiosService, Municipio } from '../../../../Service/municipios.service';
 

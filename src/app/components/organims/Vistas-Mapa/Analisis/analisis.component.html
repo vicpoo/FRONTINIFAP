@@ -1,0 +1,186 @@
+<!-- analisis.component.html -->
+<div class="min-h-screen bg-gradient-to-b from-green-50 to-white py-8">
+  <div class="container mx-auto px-4">
+    <!-- Header con el título actualizado -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8 text-center">
+      <h1 class="text-5xl font-bold text-green-900 mb-4">
+        Análisis de Suelos para {{ municipioNombre }}
+      </h1>
+      <p class="text-gray-600 text-xl">Estadísticas e interpretación de parámetros del suelo</p>
+      
+      <div class="flex justify-center mt-6">
+        <button (click)="volverAlMapa()"
+                class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition duration-200 flex items-center text-lg">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Volver al Mapa
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <!-- Estado de carga -->
+      <div *ngIf="cargando" class="text-center py-12">
+        <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-600"></div>
+        <p class="mt-6 text-gray-700 text-xl font-semibold">Cargando análisis para {{ municipioNombre }}...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error && !cargando" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-6 rounded-lg mb-8">
+        <div class="flex items-center">
+          <svg class="w-8 h-8 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <p class="font-bold text-lg">Error</p>
+            <p>{{ error }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestañas de navegación -->
+      <div *ngIf="!cargando && !error" class="mb-8">
+        <div class="border-b border-gray-200">
+          <nav class="-mb-px flex space-x-8">
+            <button 
+              (click)="cambiarTab('estadisticas')"
+              [class]="activeTab === 'estadisticas' 
+                ? 'border-green-500 text-green-600 font-semibold' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+              class="whitespace-nowrap py-4 px-1 border-b-2 text-lg">
+              Estadísticas
+            </button>
+            <button 
+              (click)="cambiarTab('interpretacion')"
+              [class]="activeTab === 'interpretacion' 
+                ? 'border-green-500 text-green-600 font-semibold' 
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+              class="whitespace-nowrap py-4 px-1 border-b-2 text-lg">
+              Interpretación
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Contenido de pestañas -->
+      <div *ngIf="!cargando && !error">
+        <!-- Pestaña de Estadísticas -->
+        <div *ngIf="activeTab === 'estadisticas' && estadisticas">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Estadísticas de Parámetros del Suelo</h2>
+            <p class="text-gray-600">Basado en {{ estadisticas.total_registros }} muestras analizadas</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let param of objectKeys(estadisticas.estadisticas)" 
+                 class="bg-gradient-to-r from-green-50 to-emerald-50 border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
+              
+              <div class="flex items-center mb-4">
+                <div class="bg-green-100 p-2 rounded-full mr-4">
+                  <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 capitalize">{{ param }}</h3>
+              </div>
+              
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Media:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].media) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Mediana:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].mediana) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Moda:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].moda) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Desviación:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].desviacion_estandar) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Mínimo:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].minimo) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Máximo:</span>
+                  <span class="font-semibold">{{ formatearNumero(estadisticas.estadisticas[param].maximo) }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Muestras:</span>
+                  <span class="font-semibold">{{ estadisticas.estadisticas[param].count }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="objectKeys(estadisticas.estadisticas).length === 0" class="text-center py-16">
+            <svg class="w-24 h-24 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay datos estadísticos disponibles</h3>
+            <p class="text-gray-600">No se encontraron datos de análisis para el municipio de <strong>{{ municipioNombre }}</strong>.</p>
+          </div>
+        </div>
+
+        <!-- Pestaña de Interpretación -->
+        <div *ngIf="activeTab === 'interpretacion' && interpretacion">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Interpretación de Parámetros del Suelo</h2>
+            <p class="text-gray-600">Basado en {{ interpretacion.total_registros }} muestras analizadas</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let param of objectKeys(interpretacion.interpretaciones)" 
+                 class="bg-gradient-to-r from-green-50 to-emerald-50 border border-gray-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300">
+              
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <div class="bg-green-100 p-2 rounded-full mr-4">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                  </div>
+                  <h3 class="text-xl font-bold text-gray-900 capitalize">{{ param }}</h3>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-medium"
+                      [class]="obtenerClaseNivel(interpretacion.interpretaciones[param].nivel)">
+                  {{ interpretacion.interpretaciones[param].interpretacion }}
+                </span>
+              </div>
+              
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-600">Mediana:</span>
+                  <span class="text-lg font-bold text-green-700">{{ formatearNumero(interpretacion.interpretaciones[param].mediana) }}</span>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg border border-gray-200">
+                  <p class="text-sm text-gray-700">{{ interpretacion.interpretaciones[param].descripcion }}</p>
+                </div>
+                
+                <div class="flex justify-between text-sm text-gray-600">
+                  <span>Muestras válidas:</span>
+                  <span class="font-semibold">{{ interpretacion.interpretaciones[param].muestras_validas }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="objectKeys(interpretacion.interpretaciones).length === 0" class="text-center py-16">
+            <svg class="w-24 h-24 text-gray-400 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No hay interpretaciones disponibles</h3>
+            <p class="text-gray-600">No se encontraron interpretaciones para el municipio de <strong>{{ municipioNombre }}</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
