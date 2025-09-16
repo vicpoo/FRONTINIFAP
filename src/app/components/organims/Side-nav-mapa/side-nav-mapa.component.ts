@@ -16,8 +16,8 @@ export class SideNavMapaComponent implements OnInit {
     { 
       icon: 'assets/archivos.png', 
       label: 'TODOS LOS RESULTADOS', 
-      route: 'mapa/todos-resultados',
-      requiresMunicipioId: false
+      route: 'registros',
+      requiresMunicipioId: true
     },
     { 
       icon: 'assets/Clasificacion.png', 
@@ -34,7 +34,7 @@ export class SideNavMapaComponent implements OnInit {
     { 
       icon: 'assets/salir.png', 
       label: 'REGRESAR', 
-      route: '',
+      route: 'home',
       requiresMunicipioId: false
     }
   ];

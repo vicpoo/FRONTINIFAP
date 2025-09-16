@@ -13,6 +13,7 @@ import { AdminGuard } from './auth/admin.guard';
 import { PortadaComponent } from './pages/Portada/Portada.component';
 import { ClasificacionComponent } from './components/organims/Vistas-Admin/Clasificacion-resultados/Clasificacion.component';
 import { AnalisisComponent } from './components/organims/Vistas-Mapa/Analisis/analisis.component';
+import { RegistrosMunicipioComponent } from './components/organims/Vistas-Mapa/Registros/registros-municipio.component';
 
 export const routes: Routes = [
   { path: '', component: PortadaComponent},
@@ -25,6 +26,10 @@ export const routes: Routes = [
   {
   path: 'analisis/:id',
   component: AnalisisComponent
+  },
+  {
+    path: 'registros/:id',
+    component: RegistrosMunicipioComponent
   },
   { 
     path: 'Usuario', 

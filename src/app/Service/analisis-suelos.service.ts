@@ -4,6 +4,18 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 // Interfaces para las respuestas de la API
+export interface RegistroAnalisis {
+  [key: string]: any; // Propiedades dinámicas del registro
+}
+
+export interface RegistrosMunicipio {
+  municipio_id: number;
+  municipio_nombre: string;
+  total_registros: number;
+  registros: RegistroAnalisis[];
+  mensaje?: string;
+}
+
 export interface InterpretacionParametro {
   mediana: number;
   interpretacion: string;
@@ -46,6 +58,7 @@ export interface EstadisticasMunicipio {
 export interface MunicipioInfo {
   municipio_id: number;
   municipio_nombre: string;
+  registros_url: string;
   estadisticas_por_id_url: string;
   estadisticas_por_nombre_url: string;
   interpretacion_por_id_url: string;
@@ -64,6 +77,11 @@ export class AnalisisSuelosService {
   private apiUrl = 'http://3.216.1.61:8002/';
 
   constructor(private http: HttpClient) {}
+
+  // Obtener registros completos por ID de municipio
+  getRegistrosPorId(municipioId: number): Observable<RegistrosMunicipio> {
+    return this.http.get<RegistrosMunicipio>(`${this.apiUrl}registros/municipio/${municipioId}`);
+  }
 
   // Obtener interpretación por ID de municipio
   getInterpretacionPorId(municipioId: number): Observable<InterpretacionMunicipio> {
@@ -99,6 +117,4 @@ export class AnalisisSuelosService {
   getRoot(): Observable<{mensaje: string}> {
     return this.http.get<{mensaje: string}>(this.apiUrl);
   }
-
 }
-
