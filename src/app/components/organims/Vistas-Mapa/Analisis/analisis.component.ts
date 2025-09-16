@@ -6,11 +6,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
 import { AnalisisSuelosService, EstadisticasMunicipio, InterpretacionMunicipio } from '../../../../Service/analisis-suelos.service';
 import { MunicipiosService, Municipio } from '../../../../Service/municipios.service';
+import { SideNavMapaComponent } from '../../Side-nav-mapa/side-nav-mapa.component';
 
 @Component({
   selector: 'app-analisis',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule,SideNavMapaComponent],
   templateUrl: './analisis.component.html',
 })
 export class AnalisisComponent implements OnInit {

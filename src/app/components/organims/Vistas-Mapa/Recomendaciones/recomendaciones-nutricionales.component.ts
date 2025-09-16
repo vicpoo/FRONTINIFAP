@@ -6,11 +6,12 @@ import { HttpClientModule } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { RecomendacionesNutricionalesService, RecomendacionNutricional } from '../../../../Service/recomendaciones-nutricionales.service';
 import { MunicipiosService, Municipio } from '../../../../Service/municipios.service';
+import { SideNavMapaComponent } from '../../Side-nav-mapa/side-nav-mapa.component';
 
 @Component({
   selector: 'app-recomendaciones-nutricionales',
   standalone: true,
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule, HttpClientModule,SideNavMapaComponent],
   templateUrl: './recomendaciones-nutricionales.component.html',
   styleUrls: ['./recomendaciones-nutricionales.component.css']
 })

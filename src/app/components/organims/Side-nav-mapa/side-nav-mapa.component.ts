@@ -1,6 +1,6 @@
 // side-nav-mapa.component.ts
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NgFor } from '@angular/common';
 
 @Component({
@@ -9,17 +9,58 @@ import { NgFor } from '@angular/common';
   standalone: true,
   imports: [NgFor]
 })
-export class SideNavMapaComponent {
+export class SideNavMapaComponent implements OnInit {
+  municipioId: number = 0;
+  
   menuItems = [
-    { icon: 'assets/subirArchivo.png', label: 'TODOS LOS RESULTADOS', route: 'mapa/todos-resultados' },
-    { icon: 'assets/estadisticas.png', label: 'ESTADÍSTICAS Y CLASIFICACIONES', route: 'analisis/:id' },
-    { icon: 'assets/recomendaciones.png', label: 'NUTRICIÓN', route: 'recomendaciones/:id' },
-    { icon: 'assets/salir.png', label: 'REGRESAR', route: '' }
+    { 
+      icon: 'assets/archivos.png', 
+      label: 'TODOS LOS RESULTADOS', 
+      route: 'mapa/todos-resultados',
+      requiresMunicipioId: false
+    },
+    { 
+      icon: 'assets/Clasificacion.png', 
+      label: 'ESTADÍSTICAS Y CLASIFICACIONES', 
+      route: 'analisis',
+      requiresMunicipioId: true
+    },
+    { 
+      icon: 'assets/recomendaciones.png', 
+      label: 'NUTRICIÓN', 
+      route: 'nutricionales',
+      requiresMunicipioId: true
+    },
+    { 
+      icon: 'assets/salir.png', 
+      label: 'REGRESAR', 
+      route: '',
+      requiresMunicipioId: false
+    }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    // Obtener el ID del municipio de la ruta actual
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.municipioId = +params['id'];
+      }
+    });
+  }
 
   handleItemClick(item: any) {
-    this.router.navigate([item.route]);
+    let finalRoute = item.route;
+    
+    // Si la ruta requiere el ID del municipio, lo agregamos
+    if (item.requiresMunicipioId && this.municipioId) {
+      finalRoute = `${item.route}/${this.municipioId}`;
+    }
+    
+    this.router.navigate([finalRoute]);
   }
 }
