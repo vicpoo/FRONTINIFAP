@@ -1,19 +1,11 @@
 <div class="p-6">
   <h2 class="text-2xl font-bold mb-4">GESTIÓN DE ARCHIVOS</h2>
 
-  <!-- Selector de tipo de análisis -->
+  <!-- Selector de tipo de análisis (ahora solo Químicos) -->
   <div class="flex gap-4 mb-6">
     <button 
-      (click)="vistaActual = 'quimicos'" 
-      [class.bg-green-700]="vistaActual === 'quimicos'"
-      class="px-4 py-2 rounded bg-green-500 text-white">
+      class="px-4 py-2 rounded bg-green-700 text-white cursor-default">
       Análisis Químicos
-    </button>
-    <button 
-      (click)="vistaActual = 'suelos'" 
-      [class.bg-green-700]="vistaActual === 'suelos'"
-      class="px-4 py-2 rounded bg-green-500 text-white">
-      Análisis de Suelos
     </button>
   </div>
 
@@ -32,7 +24,7 @@
   </div>
 
   <!-- Tabla de químicos -->
-  <div *ngIf="vistaActual === 'quimicos'">
+  <div>
     <h3 class="text-xl font-semibold mb-2">Archivos de Análisis Químicos</h3>
     <table class="w-full border-collapse">
       <thead>
@@ -63,39 +55,6 @@
       </tbody>
     </table>
   </div>
-
-  <!-- Tabla de suelos -->
-  <div *ngIf="vistaActual === 'suelos'" class="mt-6">
-    <h3 class="text-xl font-semibold mb-2">Archivos de Análisis de Suelos</h3>
-    <table class="w-full border-collapse">
-      <thead>
-        <tr class="bg-green-700 text-white">
-          <th class="p-2">NOMBRE DE USUARIO</th>
-          <th class="p-2">CORREO</th>
-          <th class="p-2">NOMBRE DEL ARCHIVO</th>
-          <th class="p-2">FECHA SUBIDO</th>
-          <th class="p-2">ESTATUS</th>
-          <th class="p-2">OPCIONES</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let archivo of archivosSuelos" class="bg-green-200">
-          <td class="p-2">{{ archivo.usuario }}</td>
-          <td class="p-2">{{ archivo.correo }}</td>
-          <td class="p-2">{{ archivo.nombre }}</td>
-          <td class="p-2">{{ archivo.fecha }}</td>
-          <td class="p-2">{{ archivo.estatus }}</td>
-          <td class="p-2">
-            <button 
-              (click)="abrirModal(archivo, 'suelos')" 
-              class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
-              Ver
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 </div>
 
 <!-- Modal de revisión -->
@@ -118,7 +77,7 @@
 
     <div class="mt-4">
       <button 
-        (click)="descargarArchivo(archivoSeleccionado?.id_user, tipoSeleccionado)" 
+        (click)="descargarArchivo(archivoSeleccionado?.id_user)" 
         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         Descargar Excel
       </button>

@@ -52,14 +52,10 @@
     <!-- Contenido principal -->
     <div class="p-8 flex-1 overflow-auto">
 
-      <!-- Selector de tipo de análisis -->
+      <!-- Nota: ahora sólo Análisis Químico (el selector ha sido eliminado) -->
       <div class="flex justify-end mb-6">
         <label class="mr-3 text-lg font-semibold text-gray-700">Tipo de análisis:</label>
-        <select [(ngModel)]="tipoAnalisis" (change)="cargarArchivos()"
-                class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-          <option value="quimico">Análisis Químico</option>
-          <option value="suelo">Análisis de Suelo</option>
-        </select>
+        <span class="px-3 py-2 border rounded bg-white">Análisis Químico</span>
       </div>
 
       <!-- Botón para abrir modal -->
@@ -76,13 +72,13 @@
           <h2 class="text-2xl font-bold mb-5 text-center text-green-700">Subir Archivo</h2>
 
           <form>
-            <!-- Tipo de análisis -->
+            <!-- Tipo de análisis (fijo a químico) -->
             <label class="block mb-3 font-semibold text-gray-700">Tipo de Análisis</label>
-            <select [(ngModel)]="tipoAnalisis" name="tipoAnalisis"
-                    class="w-full border rounded px-3 py-2 mb-5 focus:outline-none focus:ring-2 focus:ring-green-500">
-              <option value="quimico">Análisis Químico</option>
-              <option value="suelo">Análisis de Suelo</option>
-            </select>
+            <!-- input hidden o solo texto para indicar que es químico -->
+            <input type="hidden" [(ngModel)]="tipoAnalisis" name="tipoAnalisis" value="quimico" />
+            <div class="mb-5">
+              <span class="inline-block px-3 py-2 border rounded bg-gray-100">Análisis Químico</span>
+            </div>
 
             <!-- Archivo -->
             <label class="block mb-3 font-semibold text-gray-700">Seleccionar archivo</label>
@@ -136,7 +132,8 @@
           <tbody>
             <tr *ngFor="let archivo of archivosFiltrados" class="odd:bg-green-50 even:bg-green-100 border-b">
               <td class="px-5 py-3">{{ archivo.nombre }}</td>
-              <td class="px-5 py-3">{{ tipoAnalisis === 'quimico' ? 'Químico' : 'Suelo' }}</td>
+              <!-- Mostrar siempre Químico -->
+              <td class="px-5 py-3">Químico</td>
               <td class="px-5 py-3">{{ archivo.fecha }}</td>
               <td class="px-5 py-3 capitalize">{{ archivo.estatus }}</td>
 

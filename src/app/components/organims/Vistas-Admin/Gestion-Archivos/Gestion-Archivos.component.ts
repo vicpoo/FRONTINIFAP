@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { GestionArchivosAdminService } from '../../../../Service/gestion-archivos-admin.service';
 import { ArchivoPendiente } from '../../../../Interface/ArchivoPendiente';
 
-
 @Component({
   selector: 'app-gestion-archivos',
   standalone: true,
@@ -13,25 +12,20 @@ import { ArchivoPendiente } from '../../../../Interface/ArchivoPendiente';
 })
 export class GestionArchivosComponent implements OnInit {
 
-  // --- Control de vista ---
-  vistaActual: 'quimicos' | 'suelos' = 'quimicos';
+  
+  vistaActual: 'quimicos' = 'quimicos';
 
-  // --- Datos de archivos ---
   archivosQuimicos: ArchivoPendiente[] = [];
   archivosQuimicosOriginal: ArchivoPendiente[] = [];
 
-  archivosSuelos: ArchivoPendiente[] = [];
-  archivosSuelosOriginal: ArchivoPendiente[] = [];
 
-  // --- Filtros ---
   empleados: string[] = [];
   filtroEmpleado: string = '';
   filtroFecha: string = '';
 
-  // --- Modal ---
   modalAbierto: boolean = false;
   archivoSeleccionado: ArchivoPendiente | null = null;
-  tipoSeleccionado: 'quimicos' | 'suelos' = 'quimicos';
+  tipoSeleccionado: 'quimicos' = 'quimicos';
   accionSeleccionada: string = '';
   comentario: string = '';
   intentoGuardar: boolean = false;
@@ -43,10 +37,9 @@ export class GestionArchivosComponent implements OnInit {
   }
 
   // ===============================
-  // OBTENER LISTAS
+  // OBTENER LISTAS (SOLO QUÍMICOS)
   // ===============================
   obtenerUsuariosPendientes(): void {
-    // --- Analisis Químicos ---
     this.gestionArchivosService.getUsuariosConPendientes().subscribe({
       next: (data) => {
         const usuarios = data?.usuarios || [];
@@ -56,7 +49,7 @@ export class GestionArchivosComponent implements OnInit {
             correo: usuario.correo,
             nombre: archivo,
             fecha: usuario.fecha_creacion,
-            estatus: usuario.estatus?.toUpperCase() || 'PENDIENTE',
+            estatus: (usuario.estatus || 'PENDIENTE').toString().toUpperCase(),
             id_user: usuario.user_id
           }))
         );
@@ -67,63 +60,32 @@ export class GestionArchivosComponent implements OnInit {
         console.error('Error al obtener usuarios pendientes (químicos):', err);
       }
     });
-
-    // --- Analisis Suelos ---
-    // --- Analisis Suelos ---
-this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
-  next: (data) => {
-    const archivos = data?.archivos || [];
-    this.archivosSuelosOriginal = archivos.map((archivo: any) => ({
-      usuario: archivo.nombre_usuario,
-      correo: archivo.correo || '', // Si no viene en la respuesta, asigna vacío
-      nombre: archivo.nombre_archivo,
-      fecha: archivo.fecha,
-      estatus: archivo.estatus?.toUpperCase() || 'PENDIENTE',
-      id_user: archivo.user_id || null // Igual, si backend no lo manda, pon null
-    }));
-    this.archivosSuelos = [...this.archivosSuelosOriginal];
-    this.actualizarListaEmpleados();
-  },
-  error: (err) => {
-    console.error('Error al obtener usuarios pendientes (suelos):', err);
-  }
-});
-
   }
 
   actualizarListaEmpleados(): void {
-    const todosEmpleados = [
-      ...this.archivosQuimicosOriginal.map(a => a.usuario),
-      ...this.archivosSuelosOriginal.map(a => a.usuario)
-    ];
+    const todosEmpleados = this.archivosQuimicosOriginal.map(a => a.usuario);
     this.empleados = Array.from(new Set(todosEmpleados));
   }
 
   // ===============================
-  // FILTROS
+  // FILTROS (SOLO QUÍMICOS)
   // ===============================
   aplicarFiltros(): void {
-    if (this.vistaActual === 'quimicos') {
-      this.archivosQuimicos = this.archivosQuimicosOriginal.filter(a => {
-        const coincideEmpleado = this.filtroEmpleado ? a.usuario === this.filtroEmpleado : true;
-        const coincideFecha = this.filtroFecha ? a.fecha.startsWith(this.filtroFecha) : true;
-        return coincideEmpleado && coincideFecha;
-      });
-    } else {
-      this.archivosSuelos = this.archivosSuelosOriginal.filter(a => {
-        const coincideEmpleado = this.filtroEmpleado ? a.usuario === this.filtroEmpleado : true;
-        const coincideFecha = this.filtroFecha ? a.fecha.startsWith(this.filtroFecha) : true;
-        return coincideEmpleado && coincideFecha;
-      });
-    }
+    // Solo aplica filtros sobre la lista de químicos
+    this.archivosQuimicos = this.archivosQuimicosOriginal.filter(a => {
+      const coincideEmpleado = this.filtroEmpleado ? a.usuario === this.filtroEmpleado : true;
+      const coincideFecha = this.filtroFecha ? a.fecha.startsWith(this.filtroFecha) : true;
+      return coincideEmpleado && coincideFecha;
+    });
   }
 
   // ===============================
   // MODAL
   // ===============================
-  abrirModal(archivo: ArchivoPendiente, tipo: 'quimicos' | 'suelos'): void {
+  abrirModal(archivo: ArchivoPendiente, tipo?: 'quimicos'): void {
+    // ignoramos tipo entrante y forzamos 'quimicos'
     this.archivoSeleccionado = archivo;
-    this.tipoSeleccionado = tipo;
+    this.tipoSeleccionado = 'quimicos';
     this.modalAbierto = true;
   }
 
@@ -136,18 +98,15 @@ this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
   }
 
   // ===============================
-  // DESCARGA
+  // DESCARGA (SOLO QUÍMICOS)
   // ===============================
-  descargarArchivo(userId?: number, tipo?: 'quimicos' | 'suelos'): void {
+  descargarArchivo(userId?: number): void {
     if (!userId) {
       console.error('No se encontró el userId');
       return;
     }
 
-    const download$ =
-      tipo === 'quimicos'
-        ? this.gestionArchivosService.descargarArchivo(userId)
-        : this.gestionArchivosService.descargarArchivoSuelo(userId);
+    const download$ = this.gestionArchivosService.descargarArchivo(userId);
 
     download$.subscribe({
       next: (data: Blob) => {
@@ -155,7 +114,7 @@ this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `usuario_${userId}_${tipo}.xlsx`;
+        a.download = `usuario_${userId}_quimicos.xlsx`;
         a.click();
         window.URL.revokeObjectURL(url);
       },
@@ -166,7 +125,7 @@ this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
   }
 
   // ===============================
-  // GUARDAR REVISIÓN
+  // GUARDAR REVISIÓN (SOLO QUÍMICOS)
   // ===============================
   guardarRevision(): void {
     this.intentoGuardar = true;
@@ -178,15 +137,11 @@ this.gestionArchivosService.getUsuariosConPendientesSuelo().subscribe({
     const archivo = this.archivoSeleccionado.nombre;
     const comentario = this.comentario;
 
+    // Sólo usamos las APIs de químicos
     const request$ =
-  this.accionSeleccionada === 'validar'
-    ? (this.tipoSeleccionado === 'quimicos'
+      this.accionSeleccionada === 'validar'
         ? this.gestionArchivosService.validarArchivo(correo, archivo, comentario)
-        : this.gestionArchivosService.validarArchivoSuelo(correo, archivo)) // <-- Ajustado aquí
-    : (this.tipoSeleccionado === 'quimicos'
-        ? this.gestionArchivosService.rechazarArchivo(1, correo, comentario)
-        : this.gestionArchivosService.rechazarArchivoSuelo(1, correo, comentario));
-
+        : this.gestionArchivosService.rechazarArchivo(1, correo, comentario);
 
     request$.subscribe({
       next: (resp) => {
